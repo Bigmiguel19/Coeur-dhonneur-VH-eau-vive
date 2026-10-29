@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#C05C33" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Historique de vos versements — Cœur d'Honneur." />
+    <title>Historique — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/animations.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'espace membre"></aside>
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Cotisation</p>
+              <h1>Mes versements</h1>
+              <p>Toutes vos déclarations, validées ou non, avec leur motif en cas de refus.</p>
+            </div>
+            <a class="btn btn--primary btn--sm" href="payment.html">Déclarer un versement</a>
+          </div>
+
+          <div class="banner banner--info" id="sent-banner" hidden style="margin-bottom: var(--sp-5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m5 12 4 4L19 6" />
+            </svg>
+            <p>
+              Votre déclaration a bien été enregistrée. Elle apparaît ci-dessous
+              avec le statut « En attente » jusqu’à sa vérification.
+            </p>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="page" hidden>
+            <div class="grid-stats" style="margin-bottom: var(--sp-6)">
+              <article class="stat">
+                <p class="stat__label">Total validé</p>
+                <p class="stat__value" id="kpi-confirmed">—</p>
+                <p class="stat__meta" id="kpi-confirmed-meta">Versements reconnus</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">En attente</p>
+                <p class="stat__value" id="kpi-pending">—</p>
+                <p class="stat__meta" id="kpi-pending-meta">Non encore vérifiés</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Déclarations</p>
+                <p class="stat__value" id="kpi-count">—</p>
+                <p class="stat__meta">Depuis votre inscription</p>
+              </article>
+            </div>
+
+            <section class="card" aria-labelledby="titre-historique">
+              <div class="card__head">
+                <div>
+                  <h2 class="card__title" id="titre-historique">Historique</h2>
+                  <p class="card__subtitle">Du plus récent au plus ancien</p>
+                </div>
+              </div>
+
+              <div class="card__body">
+                <div class="tabs" id="filtres" role="tablist" aria-label="Filtrer les versements">
+                  <button class="tabs__item" type="button" role="tab" aria-selected="true" data-filter="all">
+                    Tous <span data-count="all">0</span>
+                  </button>
+                  <button class="tabs__item" type="button" role="tab" aria-selected="false" data-filter="pending">
+                    En attente <span data-count="pending">0</span>
+                  </button>
+                  <button class="tabs__item" type="button" role="tab" aria-selected="false" data-filter="confirmed">
+                    Validés <span data-count="confirmed">0</span>
+                  </button>
+                  <button class="tabs__item" type="button" role="tab" aria-selected="false" data-filter="rejected">
+                    Refusés <span data-count="rejected">0</span>
+                  </button>
+                </div>
+
+                <div class="table-wrap" id="table-wrap">
+                  <table class="table">
+                    <caption class="sr-only">Liste de vos versements</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col" class="table__num">Montant</th>
+                        <th scope="col">Référence</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Justificatif</th>
+                      </tr>
+                    </thead>
+                    <tbody id="payments-body"></tbody>
+                  </table>
+                </div>
+
+                <div class="empty" id="payments-empty" hidden>
+                  <p class="empty__title">Aucun versement pour ce filtre</p>
+                  <p class="empty__text">
+                    Vos déclarations apparaîtront ici dès le premier envoi.
+                  </p>
+                  <a class="btn btn--primary btn--sm" href="payment.html" style="margin-top: var(--sp-4)">
+                    Déclarer un versement
+                  </a>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { $, formatMoney, formatDate, formatRelative, toNumber, createEl } from "./assets/js/utils.js";
+      import { toast } from "./assets/js/ui.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "./assets/js/supabase-client.js";
+      import { authErrorMessage } from "./assets/js/auth.js";
+      import { requireMember } from "./assets/js/guards.js";
+      import { mountShell, paintIdentity } from "./assets/js/app-shell.js";
+
+      const BUCKET = "payment-proofs";
+
+      const STATUS = {
+        confirmed: { variant: "paid", label: "Validé" },
+        pending: { variant: "pending", label: "En attente" },
+        rejected: { variant: "late", label: "Refusé" },
+      };
+
+      let payments = [];
+      let currency = "XOF";
+      let activeFilter = "all";
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      function badge(status) {
+        const meta = STATUS[status] ?? { variant: "unpaid", label: status };
+        return createEl("span", { class: `badge badge--${meta.variant}`, text: meta.label });
+      }
+
+      function render() {
+        const tbody = $("#payments-body");
+        tbody.replaceChildren();
+
+        const visible = activeFilter === "all"
+          ? payments
+          : payments.filter((payment) => payment.status === activeFilter);
+
+        $("#table-wrap").hidden = visible.length === 0;
+        $("#payments-empty").hidden = visible.length > 0;
+
+        for (const payment of visible) {
+          const row = createEl("tr");
+
+          const dateCell = createEl("td");
+          dateCell.append(createEl("span", { text: formatDate(payment.payment_date) }));
+          dateCell.append(
+            createEl("br"),
+            createEl("span", { class: "muted", text: `envoyé ${formatRelative(payment.submitted_at)}` })
+          );
+
+          const referenceCell = createEl("td");
+          referenceCell.append(
+            createEl("span", { text: payment.transaction_reference || "—" })
+          );
+          if (payment.note) {
+            referenceCell.append(
+              createEl("br"),
+              createEl("span", { class: "muted", text: payment.note })
+            );
+          }
+
+          const statusCell = createEl("td");
+          statusCell.append(badge(payment.status));
+          if (payment.status === "rejected" && payment.rejection_reason) {
+            statusCell.append(
+              createEl("br"),
+              createEl("span", { class: "muted", text: payment.rejection_reason })
+            );
+          }
+          if (payment.status === "confirmed" && payment.validated_at) {
+            statusCell.append(
+              createEl("br"),
+              createEl("span", { class: "muted", text: `validé le ${formatDate(payment.validated_at)}` })
+            );
+          }
+
+          const proofCell = createEl("td");
+          if (payment.proof_path) {
+            const button = createEl("button", {
+              class: "btn btn--ghost btn--sm",
+              type: "button",
+              text: "Voir",
+            });
+            button.addEventListener("click", () => openProof(payment.proof_path, button));
+            proofCell.append(button);
+          } else {
+            proofCell.append(createEl("span", { class: "muted", text: "—" }));
+          }
+
+          row.append(
+            dateCell,
+            createEl("td", { class: "table__num", text: formatMoney(payment.amount, currency) }),
+            referenceCell,
+            statusCell,
+            proofCell
+          );
+
+          tbody.append(row);
+        }
+      }
+
+      async function openProof(path, button) {
+        button.disabled = true;
+        // Lien signé de 60 secondes : le bucket reste privé.
+        const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60);
+        button.disabled = false;
+
+        if (error || !data?.signedUrl) {
+          toast("Le justificatif est momentanément inaccessible.", "error");
+          return;
+        }
+        window.open(data.signedUrl, "_blank", "noopener");
+      }
+
+      function paintSummary() {
+        const confirmed = payments.filter((p) => p.status === "confirmed");
+        const pending = payments.filter((p) => p.status === "pending");
+        const rejected = payments.filter((p) => p.status === "rejected");
+
+        const confirmedTotal = confirmed.reduce((sum, p) => sum + toNumber(p.amount), 0);
+        const pendingTotal = pending.reduce((sum, p) => sum + toNumber(p.amount), 0);
+
+        $("#kpi-confirmed").textContent = formatMoney(confirmedTotal, currency);
+        $("#kpi-confirmed-meta").textContent = `${confirmed.length} versement${confirmed.length > 1 ? "s" : ""} reconnu${confirmed.length > 1 ? "s" : ""}`;
+        $("#kpi-pending").textContent = formatMoney(pendingTotal, currency);
+        $("#kpi-pending-meta").textContent = pending.length
+          ? `${pending.length} en cours de vérification`
+          : "Aucune vérification en cours";
+        $("#kpi-count").textContent = String(payments.length);
+
+        const counts = { all: payments.length, pending: pending.length, confirmed: confirmed.length, rejected: rejected.length };
+        document.querySelectorAll("[data-count]").forEach((el) => {
+          el.textContent = String(counts[el.dataset.count] ?? 0);
+        });
+      }
+
+      function initFilters() {
+        document.querySelectorAll("[data-filter]").forEach((button) => {
+          button.addEventListener("click", () => {
+            activeFilter = button.dataset.filter;
+            document.querySelectorAll("[data-filter]").forEach((other) => {
+              other.setAttribute("aria-selected", String(other === button));
+            });
+            render();
+          });
+        });
+      }
+
+      async function boot() {
+        mountShell({ role: "member", active: "history" });
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireMember();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        paintIdentity(profile);
+
+        const [settingsRes, paymentsRes] = await Promise.all([
+          supabase.from("app_settings").select("currency").maybeSingle(),
+          supabase
+            .from("payments")
+            .select("id, amount, payment_date, transaction_reference, note, status, proof_path, submitted_at, validated_at, rejection_reason")
+            .eq("member_id", session.user.id)
+            .order("submitted_at", { ascending: false })
+            .limit(100),
+        ]);
+
+        const firstError = settingsRes.error || paymentsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return;
+        }
+
+        currency = settingsRes.data?.currency || "XOF";
+        payments = paymentsRes.data ?? [];
+
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+
+        if (new URLSearchParams(window.location.search).get("state") === "sent") {
+          $("#sent-banner").hidden = false;
+        }
+
+        paintSummary();
+        initFilters();
+        render();
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

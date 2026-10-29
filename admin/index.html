@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Espace d'administration — Cœur d'Honneur, Centre Eau Vive Williamsville." />
+    <title>Administration — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/animations.css" />
+    <link rel="stylesheet" href="../assets/css/responsive.css" />
+    <link rel="stylesheet" href="../assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="Navigation de l'administration">
+        <a class="brand sidebar__brand" href="../index.html" aria-label="Cœur d'Honneur, accueil">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19.5 12.6 12 20l-7.5-7.4a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l1 1 1-1a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z" />
+            </svg>
+          </span>
+          <span class="brand__word">Cœur d’Honneur</span>
+        </a>
+
+        <nav class="sidebar__nav" aria-label="Sections">
+          <p class="sidebar__group">Administration</p>
+
+          <a class="nav-link is-active" href="index.html" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="9" rx="2" />
+              <rect x="14" y="3" width="7" height="5" rx="2" />
+              <rect x="14" y="12" width="7" height="9" rx="2" />
+              <rect x="3" y="16" width="7" height="5" rx="2" />
+            </svg>
+            Tableau de bord
+          </a>
+
+          <p class="sidebar__group">Mon compte</p>
+
+          <a class="nav-link" href="../dashboard.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21a8 8 0 0 1 16 0" />
+            </svg>
+            Mon espace membre
+          </a>
+        </nav>
+
+        <div class="sidebar__foot">
+          <div class="user-chip">
+            <span class="avatar" id="user-initials" aria-hidden="true">—</span>
+            <span class="user-chip__text">
+              <span class="user-chip__name" id="user-name">Chargement…</span>
+              <span class="user-chip__role">Administrateur</span>
+            </span>
+          </div>
+
+          <button class="btn btn--ghost btn--sm btn--block" type="button" data-logout>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 16px; height: 16px">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <path d="m16 17 5-5-5-5" />
+              <path d="M21 12H9" />
+            </svg>
+            Se déconnecter
+          </button>
+        </div>
+      </aside>
+
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar">
+          <button
+            class="btn btn--ghost btn--icon topbar__toggle"
+            type="button"
+            id="sidebar-toggle"
+            aria-expanded="false"
+            aria-controls="sidebar"
+            aria-label="Ouvrir le menu"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
+            </svg>
+          </button>
+
+          <div class="topbar__hello">
+            <span class="topbar__name" id="topbar-name">Administration</span>
+            <span class="topbar__date" id="topbar-date"></span>
+          </div>
+
+          <span class="topbar__spacer"></span>
+
+          <a class="btn btn--ghost btn--sm" href="../index.html">Voir le site</a>
+        </header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Pilotage</p>
+              <h1>Tableau de bord</h1>
+              <p>Vue d’ensemble des cotisations et des versements à vérifier.</p>
+            </div>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="admin-dashboard" hidden>
+            <div class="grid-stats" style="margin-bottom: var(--sp-6)">
+              <article class="stat stat--accent">
+                <p class="stat__label">Membres actifs</p>
+                <p class="stat__value" id="kpi-members">—</p>
+                <p class="stat__meta">Comptes habilités</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Attendu</p>
+                <p class="stat__value" id="kpi-expected">—</p>
+                <p class="stat__meta">Toutes périodes confondues</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Encaissé</p>
+                <p class="stat__value" id="kpi-confirmed">—</p>
+                <p class="stat__meta" id="kpi-rate">—</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">À vérifier</p>
+                <p class="stat__value" id="kpi-pending">—</p>
+                <p class="stat__meta" id="kpi-pending-amount">—</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Membres en retard</p>
+                <p class="stat__value" id="kpi-arrears">—</p>
+                <p class="stat__meta">Au moins une échéance dépassée</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Reste à recouvrer</p>
+                <p class="stat__value" id="kpi-remaining">—</p>
+                <p class="stat__meta">Sur les périodes ouvertes</p>
+              </article>
+            </div>
+
+            <section class="card" aria-labelledby="titre-file">
+              <div class="card__head">
+                <div>
+                  <h2 class="card__title" id="titre-file">Versements en attente de vérification</h2>
+                  <p class="card__subtitle">Déclarations reçues, non encore validées</p>
+                </div>
+                <span class="badge badge--pending" id="queue-count">0</span>
+              </div>
+
+              <div class="card__body">
+                <div class="table-wrap" id="queue-wrap">
+                  <table class="table">
+                    <caption class="sr-only">File d’attente des versements déclarés</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Membre</th>
+                        <th scope="col">Payé le</th>
+                        <th scope="col" class="table__num">Montant</th>
+                        <th scope="col">Référence</th>
+                        <th scope="col">Reçue</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="queue-body"></tbody>
+                  </table>
+                </div>
+
+                <div class="empty" id="queue-empty" hidden>
+                  <p class="empty__title">Aucun versement en attente</p>
+                  <p class="empty__text">La file de vérification est vide pour le moment.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <dialog class="dialog" id="reject-dialog" aria-labelledby="reject-title">
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="reject-title">Refuser une déclaration</h2>
+        <button type="button" class="btn btn--ghost btn--icon btn--sm" data-close aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="dialog__body">
+        <p class="muted" id="reject-target"></p>
+
+        <div class="field" style="margin-top: var(--sp-4)">
+          <label class="field__label" for="reject-reason">Motif du refus</label>
+          <textarea
+            class="textarea"
+            id="reject-reason"
+            rows="3"
+            maxlength="300"
+            placeholder="Ex. : référence introuvable dans l’historique Wave"
+          ></textarea>
+          <span class="field__error"></span>
+        </div>
+
+        <p class="muted" style="margin-top: var(--sp-3)">
+          Le membre verra ce motif dans son historique. La déclaration ne peut pas être rétablie ensuite.
+        </p>
+      </div>
+
+      <div class="dialog__foot">
+        <button type="button" class="btn btn--secondary" data-close>Annuler</button>
+        <button type="button" class="btn btn--danger" id="reject-confirm">Refuser la déclaration</button>
+      </div>
+    </dialog>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { $, formatMoney, formatDate, formatRelative, initials, toNumber, createEl, withSubmitLock } from "../assets/js/utils.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
+      import { signOut, authErrorMessage } from "../assets/js/auth.js";
+      import { requireAdmin } from "../assets/js/guards.js";
+      import { toast, confirmDialog, setFieldError } from "../assets/js/ui.js";
+
+      let currency = "XOF";
+      let pendingRejectId = null;
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#admin-dashboard").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      function paintUser(profile) {
+        const name = profile.full_name || profile.email || "Administrateur";
+        $("#user-name").textContent = name;
+        $("#user-initials").textContent = initials(name) || "—";
+        $("#topbar-name").textContent = `Bonjour, ${name.split(" ")[0]}`;
+        $("#topbar-date").textContent = new Intl.DateTimeFormat("fr-FR", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }).format(new Date());
+      }
+
+      async function loadAdmin() {
+        const [statsRes, queueRes, settingsRes] = await Promise.all([
+          supabase.rpc("admin_dashboard_stats"),
+          supabase
+            .from("v_payments_queue")
+            .select("id, full_name, email, amount, payment_date, transaction_reference, submitted_at, status")
+            .eq("status", "pending")
+            .order("submitted_at", { ascending: true })
+            .limit(15),
+          supabase.from("app_settings").select("currency").maybeSingle(),
+        ]);
+
+        const firstError = statsRes.error || queueRes.error || settingsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return;
+        }
+
+        currency = settingsRes.data?.currency || "XOF";
+        const stats = statsRes.data ?? {};
+        const queue = queueRes.data ?? [];
+
+        $("#loading").hidden = true;
+        $("#admin-dashboard").hidden = false;
+
+        $("#kpi-members").textContent = String(toNumber(stats.active_members));
+        $("#kpi-expected").textContent = formatMoney(stats.expected_total, currency);
+        $("#kpi-confirmed").textContent = formatMoney(stats.confirmed_total, currency);
+        $("#kpi-rate").textContent = `Taux de recouvrement : ${toNumber(stats.collection_rate)} %`;
+        $("#kpi-pending").textContent = String(toNumber(stats.pending_count));
+        $("#kpi-pending-amount").textContent = formatMoney(stats.pending_amount, currency);
+        $("#kpi-arrears").textContent = String(toNumber(stats.arrears_members));
+        $("#kpi-remaining").textContent = formatMoney(stats.remaining_total, currency);
+
+        $("#queue-count").textContent = String(queue.length);
+
+        const tbody = $("#queue-body");
+        tbody.replaceChildren();
+
+        if (!queue.length) {
+          $("#queue-empty").hidden = false;
+          $("#queue-wrap").hidden = true;
+          return;
+        }
+
+        $("#queue-empty").hidden = true;
+        $("#queue-wrap").hidden = false;
+
+        for (const item of queue) {
+          const row = createEl("tr");
+          const memberName = item.full_name || item.email || "—";
+
+          const memberCell = createEl("td");
+          memberCell.append(createEl("span", { text: memberName }));
+          if (item.email) {
+            memberCell.append(
+              createEl("br"),
+              createEl("span", { class: "muted", text: item.email })
+            );
+          }
+
+          const reference = item.transaction_reference || "—";
+
+          const confirmButton = createEl(
+            "button",
+            {
+              type: "button",
+              class: "btn btn--primary btn--sm",
+              "aria-label": `Valider le versement de ${memberName}`,
+            },
+            "Valider"
+          );
+
+          const rejectButton = createEl(
+            "button",
+            {
+              type: "button",
+              class: "btn btn--secondary btn--sm",
+              "aria-label": `Refuser le versement de ${memberName}`,
+            },
+            "Refuser"
+          );
+
+          confirmButton.addEventListener("click", () => confirmPayment(item, confirmButton));
+          rejectButton.addEventListener("click", () => openRejectDialog(item));
+
+          const actions = createEl("td");
+          actions.append(
+            createEl("div", { style: "display: flex; gap: var(--sp-2); flex-wrap: wrap" }, [
+              confirmButton,
+              rejectButton,
+            ])
+          );
+
+          row.append(
+            memberCell,
+            createEl("td", { text: formatDate(item.payment_date) }),
+            createEl("td", { class: "table__num", text: formatMoney(item.amount, currency) }),
+            createEl("td", { text: reference }),
+            createEl("td", { text: formatRelative(item.submitted_at) }),
+            actions
+          );
+
+          tbody.append(row);
+        }
+      }
+
+      /* ---------- Décision ---------- */
+      function decisionError(error) {
+        const code = String(error?.code ?? "");
+        // Les messages de ces deux codes sont déjà rédigés en français.
+        if (code === "P0001" || code === "22023") return error.message;
+        if (code === "42501") return "Cette action est réservée à l’administration.";
+        return authErrorMessage(error);
+      }
+
+      async function applyDecision(id, payload) {
+        const { data, error } = await supabase
+          .from("payments")
+          .update(payload)
+          .eq("id", id)
+          .eq("status", "pending")
+          .select("id");
+
+        if (error) return { ok: false, message: decisionError(error) };
+        if (!data || data.length === 0) {
+          return { ok: false, message: "Cette déclaration a déjà été traitée." };
+        }
+        return { ok: true };
+      }
+
+      async function confirmPayment(item, button) {
+        const label = item.full_name || item.email || "ce membre";
+
+        const ok = await confirmDialog({
+          title: "Confirmer ce versement ?",
+          message: `${formatMoney(item.amount, currency)} déclarés par ${label}. Le montant sera imputé sur ses échéances les plus anciennes et son décompte de retard sera recalculé.`,
+          confirmLabel: "Confirmer le versement",
+        });
+        if (!ok) return;
+
+        await withSubmitLock(button, async () => {
+          const result = await applyDecision(item.id, { status: "confirmed" });
+          toast(
+            result.ok ? "Versement confirmé." : result.message,
+            result.ok ? "success" : "error"
+          );
+          await loadAdmin();
+        });
+      }
+
+      function openRejectDialog(item) {
+        const dialog = $("#reject-dialog");
+        const reason = $("#reject-reason");
+
+        pendingRejectId = item.id;
+        $("#reject-target").textContent =
+          `${item.full_name || item.email || "Membre"} — ${formatMoney(item.amount, currency)}, ` +
+          `payé le ${formatDate(item.payment_date)}.`;
+
+        reason.value = "";
+        setFieldError(reason, "");
+        dialog.showModal();
+        reason.focus();
+      }
+
+      function initRejectDialog() {
+        const dialog = $("#reject-dialog");
+        const reason = $("#reject-reason");
+        const confirmButton = $("#reject-confirm");
+
+        dialog.querySelectorAll("[data-close]").forEach((button) =>
+          button.addEventListener("click", () => dialog.close())
+        );
+
+        dialog.addEventListener("click", (event) => {
+          if (event.target === dialog) dialog.close();
+        });
+
+        confirmButton.addEventListener("click", async () => {
+          const value = reason.value.trim();
+          if (value.length < 5) {
+            setFieldError(reason, "Indiquez un motif d’au moins 5 caractères.");
+            reason.focus();
+            return;
+          }
+
+          await withSubmitLock(confirmButton, async () => {
+            const result = await applyDecision(pendingRejectId, {
+              status: "rejected",
+              rejection_reason: value,
+            });
+
+            if (result.ok) {
+              toast("Déclaration refusée. Le membre verra le motif dans son historique.", "success");
+              dialog.close();
+            } else {
+              toast(result.message, "error");
+            }
+
+            await loadAdmin();
+          });
+        });
+      }
+
+      function initDrawer() {
+        const sidebar = $("#sidebar");
+        const scrim = $("#scrim");
+        const toggle = $("#sidebar-toggle");
+        if (!sidebar || !toggle || !scrim) return;
+
+        const setOpen = (open) => {
+          sidebar.classList.toggle("is-open", open);
+          scrim.hidden = !open;
+          scrim.classList.toggle("is-visible", open);
+          toggle.setAttribute("aria-expanded", String(open));
+        };
+
+        toggle.addEventListener("click", () => setOpen(!sidebar.classList.contains("is-open")));
+        scrim.addEventListener("click", () => setOpen(false));
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") setOpen(false);
+        });
+        sidebar.addEventListener("click", (event) => {
+          if (event.target.closest("a")) setOpen(false);
+        });
+      }
+
+      function initLogout() {
+        document.querySelectorAll("[data-logout]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            await signOut({ redirectTo: "index.html" });
+          });
+        });
+      }
+
+      async function boot() {
+        initDrawer();
+        initLogout();
+        initRejectDialog();
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireAdmin();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        paintUser(profile);
+
+        try {
+          await loadAdmin();
+        } catch (loadError) {
+          showFatal(authErrorMessage(loadError));
+        }
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

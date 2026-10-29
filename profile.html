@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#C05C33" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Vos informations personnelles — Cœur d'Honneur." />
+    <title>Mon profil — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/animations.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'espace membre"></aside>
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Compte</p>
+              <h1>Mon profil</h1>
+              <p>Vos coordonnées et la sécurité de votre accès.</p>
+            </div>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="page" hidden>
+            <div class="grid-main">
+              <div class="stack stack--lg">
+                <!-- Coordonnées -->
+                <section class="card" aria-labelledby="titre-infos">
+                  <div class="card__head">
+                    <div>
+                      <h2 class="card__title" id="titre-infos">Informations personnelles</h2>
+                      <p class="card__subtitle">Utilisées par l’administration pour vous joindre</p>
+                    </div>
+                  </div>
+
+                  <div class="card__body">
+                    <form class="form" id="form-infos" novalidate>
+                      <div class="field">
+                        <label class="field__label required" for="full_name">Nom complet</label>
+                        <input
+                          class="input"
+                          type="text"
+                          id="full_name"
+                          name="full_name"
+                          autocomplete="name"
+                          maxlength="80"
+                          required
+                        />
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label" for="phone">Téléphone</label>
+                        <input
+                          class="input"
+                          type="tel"
+                          id="phone"
+                          name="phone"
+                          inputmode="tel"
+                          autocomplete="tel"
+                          placeholder="+225 …"
+                          maxlength="30"
+                        />
+                        <p class="field__hint">Format international recommandé.</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label" for="email">Adresse e-mail</label>
+                        <input class="input" type="email" id="email" name="email" readonly />
+                        <p class="field__hint">
+                          L’adresse e-mail sert d’identifiant de connexion : elle ne peut
+                          pas être modifiée ici. Contactez l’administration en cas d’erreur.
+                        </p>
+                      </div>
+
+                      <button class="btn btn--primary btn--block" type="submit">
+                        Enregistrer mes informations
+                      </button>
+                    </form>
+                  </div>
+                </section>
+
+                <!-- Mot de passe -->
+                <section class="card" aria-labelledby="titre-securite">
+                  <div class="card__head">
+                    <div>
+                      <h2 class="card__title" id="titre-securite">Mot de passe</h2>
+                      <p class="card__subtitle">8 caractères minimum, avec au moins une lettre et un chiffre</p>
+                    </div>
+                  </div>
+
+                  <div class="card__body">
+                    <form class="form" id="form-password" novalidate>
+                      <div class="field">
+                        <label class="field__label required" for="password">Nouveau mot de passe</label>
+                        <div class="input-group">
+                          <input
+                            class="input"
+                            type="password"
+                            id="password"
+                            name="password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                          />
+                          <button
+                            class="input-group__action"
+                            type="button"
+                            data-password-toggle="password"
+                            aria-label="Afficher le mot de passe"
+                            aria-pressed="false"
+                          ></button>
+                        </div>
+                        <p class="field__hint" id="force" aria-live="polite">Force : —</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label required" for="confirmation">Confirmer le mot de passe</label>
+                        <div class="input-group">
+                          <input
+                            class="input"
+                            type="password"
+                            id="confirmation"
+                            name="confirmation"
+                            autocomplete="new-password"
+                            required
+                          />
+                          <button
+                            class="input-group__action"
+                            type="button"
+                            data-password-toggle="confirmation"
+                            aria-label="Afficher le mot de passe"
+                            aria-pressed="false"
+                          ></button>
+                        </div>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <button class="btn btn--secondary btn--block" type="submit">
+                        Changer mon mot de passe
+                      </button>
+                    </form>
+                  </div>
+                </section>
+              </div>
+
+              <!-- Colonne latérale -->
+              <div class="stack stack--lg">
+                <section class="card card--pad" aria-labelledby="titre-cotisation">
+                  <h2 class="card__title" id="titre-cotisation">Ma cotisation</h2>
+
+                  <div class="stack" style="margin-top: var(--sp-4)">
+                    <div>
+                      <p class="stat__label">Tranche</p>
+                      <p class="stat__value" id="tier-label" style="font-size: var(--fs-lg)">—</p>
+                    </div>
+
+                    <div>
+                      <p class="stat__label">Montant mensuel</p>
+                      <p class="stat__value" id="tier-amount" style="font-size: var(--fs-lg)">—</p>
+                    </div>
+
+                    <p class="muted">
+                      La tranche de cotisation est attribuée par l’administration.
+                      Demandez un changement si votre situation a évolué.
+                    </p>
+                  </div>
+                </section>
+
+                <section class="card card--pad" aria-labelledby="titre-compte">
+                  <h2 class="card__title" id="titre-compte">Mon compte</h2>
+
+                  <div class="stack" style="margin-top: var(--sp-4)">
+                    <div>
+                      <p class="stat__label">Rôle</p>
+                      <p id="account-role">—</p>
+                    </div>
+
+                    <div>
+                      <p class="stat__label">Membre depuis</p>
+                      <p id="account-since">—</p>
+                    </div>
+
+                    <div>
+                      <p class="stat__label">Identifiant</p>
+                      <p class="muted" id="account-id" style="word-break: break-all">—</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { $, formatMoney, formatDate, toNumber, withSubmitLock, isValidPhone } from "./assets/js/utils.js";
+      import { toast, setFieldError, bindFieldCleanup } from "./assets/js/ui.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "./assets/js/supabase-client.js";
+      import { authErrorMessage, updatePassword } from "./assets/js/auth.js";
+      import { requireMember } from "./assets/js/guards.js";
+      import { mountShell, paintIdentity, refreshIdentity } from "./assets/js/app-shell.js";
+
+      let currentUser = null;
+      let currency = "XOF";
+
+      const formInfos = $("#form-infos");
+      const formPassword = $("#form-password");
+      const nameInput = $("#full_name");
+      const phoneInput = $("#phone");
+      const passwordInput = $("#password");
+      const confirmInput = $("#confirmation");
+      const strengthHint = $("#force");
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      /* ---------- Chargement ---------- */
+      async function loadProfile(userId) {
+        const [profileRes, settingsRes] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select("id, full_name, email, phone, role, tier_id, created_at")
+            .eq("id", userId)
+            .maybeSingle(),
+          supabase.from("app_settings").select("currency, default_monthly_amount").maybeSingle(),
+        ]);
+
+        const firstError = profileRes.error || settingsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return null;
+        }
+
+        currency = settingsRes.data?.currency || "XOF";
+        const profile = profileRes.data;
+        if (!profile) {
+          showFatal("Votre profil est introuvable. Contactez l’administration.");
+          return null;
+        }
+
+        nameInput.value = profile.full_name ?? "";
+        phoneInput.value = profile.phone ?? "";
+        $("#email").value = profile.email ?? "";
+
+        $("#account-role").textContent = profile.role === "admin" ? "Administrateur" : "Membre";
+        $("#account-since").textContent = formatDate(profile.created_at);
+        $("#account-id").textContent = profile.id;
+
+        // Tranche de cotisation
+        $("#tier-amount").textContent = formatMoney(
+          toNumber(settingsRes.data?.default_monthly_amount),
+          currency
+        );
+
+        if (profile.tier_id) {
+          const { data: tier } = await supabase
+            .from("contribution_tiers")
+            .select("label, monthly_amount")
+            .eq("id", profile.tier_id)
+            .maybeSingle();
+
+          if (tier) {
+            $("#tier-label").textContent = tier.label;
+            $("#tier-amount").textContent = formatMoney(tier.monthly_amount, currency);
+          }
+        } else {
+          $("#tier-label").textContent = "Montant par défaut";
+        }
+
+        return profile;
+      }
+
+      /* ---------- Enregistrement des coordonnées ---------- */
+      formInfos.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        let valid = true;
+        const fullName = nameInput.value.trim();
+
+        if (fullName.length < 2) {
+          setFieldError(nameInput, "Indiquez votre nom complet.");
+          valid = false;
+        }
+
+        const phone = phoneInput.value.trim();
+        if (phone && !isValidPhone(phone)) {
+          setFieldError(phoneInput, "Ce numéro de téléphone semble invalide.");
+          valid = false;
+        }
+
+        if (!valid) {
+          formInfos.querySelector('[aria-invalid="true"]')?.focus();
+          return;
+        }
+
+        const button = formInfos.querySelector('button[type="submit"]');
+
+        await withSubmitLock(button, async () => {
+          // Seules ces deux colonnes sont autorisées par le GRANT SQL.
+          const { error } = await supabase
+            .from("profiles")
+            .update({ full_name: fullName, phone: phone || null })
+            .eq("id", currentUser.id);
+
+          if (error) {
+            toast(authErrorMessage(error), "error", { title: "Enregistrement impossible" });
+            return;
+          }
+
+          toast("Vos informations ont été mises à jour.", "success");
+          refreshIdentity({ full_name: fullName });
+        });
+      });
+
+      /* ---------- Mot de passe ---------- */
+      function scorePassword(value) {
+        let score = 0;
+        if (value.length >= 8) score += 1;
+        if (value.length >= 12) score += 1;
+        if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score += 1;
+        if (/\d/.test(value) && /[^\w\s]/.test(value)) score += 1;
+        return Math.min(score, 4);
+      }
+
+      const FORCE_LABELS = ["—", "faible", "moyenne", "bonne", "excellente"];
+
+      passwordInput.addEventListener("input", () => {
+        strengthHint.textContent = `Force : ${FORCE_LABELS[scorePassword(passwordInput.value)]}`;
+      });
+
+      formPassword.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        let valid = true;
+        const password = passwordInput.value;
+
+        if (password.length < 8) {
+          setFieldError(passwordInput, "Utilisez au moins 8 caractères.");
+          valid = false;
+        } else if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+          setFieldError(passwordInput, "Ajoutez au moins une lettre et un chiffre.");
+          valid = false;
+        }
+
+        if (confirmInput.value !== password) {
+          setFieldError(confirmInput, "Les deux mots de passe ne correspondent pas.");
+          valid = false;
+        }
+
+        if (!valid) {
+          formPassword.querySelector('[aria-invalid="true"]')?.focus();
+          return;
+        }
+
+        const button = formPassword.querySelector('button[type="submit"]');
+
+        await withSubmitLock(button, async () => {
+          const { ok, error } = await updatePassword(password);
+
+          if (!ok) {
+            toast(authErrorMessage(error), "error", { title: "Changement impossible" });
+            return;
+          }
+
+          formPassword.reset();
+          strengthHint.textContent = "Force : —";
+          toast("Votre mot de passe a été modifié.", "success", { title: "C’est fait" });
+        });
+      });
+
+      /* ---------- Démarrage ---------- */
+      async function boot() {
+        mountShell({ role: "member", active: "profile" });
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireMember();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        currentUser = session.user;
+        paintIdentity(profile);
+
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+
+        bindFieldCleanup(formInfos);
+        bindFieldCleanup(formPassword);
+
+        await loadProfile(session.user.id);
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

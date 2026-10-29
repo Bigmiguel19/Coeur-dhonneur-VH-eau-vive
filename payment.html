@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#C05C33" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Déclarer un versement de cotisation — Cœur d'Honneur." />
+    <title>Déclarer un versement — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/animations.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+    <link rel="stylesheet" href="assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'espace membre"></aside>
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Cotisation</p>
+              <h1>Déclarer un versement</h1>
+              <p>
+                Payez le montant de votre choix — à partir du minimum autorisé —
+                puis enregistrez ici le versement pour qu’il soit vérifié.
+              </p>
+            </div>
+            <a class="btn btn--secondary btn--sm" href="dashboard.html">Retour au tableau de bord</a>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="page" hidden>
+            <!-- Déclaration déjà en attente -->
+            <div class="banner banner--warning" id="pending-banner" hidden style="margin-bottom: var(--sp-6)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v4" /><path d="M12 16h.01" />
+              </svg>
+              <p>
+                <strong>Un versement est déjà en attente de vérification.</strong>
+                <span id="pending-text"></span>
+                Patientez la validation de l’administration avant d’en déclarer un autre.
+                <a href="history.html">Voir mes versements</a>
+              </p>
+            </div>
+
+            <div class="grid-main">
+              <div class="stack stack--lg">
+                <!-- Étape 1 : payer -->
+                <section class="card" aria-labelledby="titre-wave">
+                  <div class="card__head">
+                    <div>
+                      <h2 class="card__title" id="titre-wave">1. Effectuez le versement</h2>
+                      <p class="card__subtitle">Via Wave, avec le lien officiel de l’église</p>
+                    </div>
+                  </div>
+                  <div class="card__body">
+                    <div class="banner banner--warning" style="margin-bottom: var(--sp-5)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 9v4" /><path d="M12 17h.01" />
+                        <path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                      </svg>
+                      <p>
+                        <strong>Vérifiez avant de valider le paiement.</strong>
+                        Contrôlez le nom du bénéficiaire et le montant sur l’écran Wave.
+                        Un versement envoyé à un autre destinataire ne peut pas être récupéré.
+                      </p>
+                    </div>
+
+                    <p class="muted" id="wave-instructions">
+                      Le lien de paiement officiel est publié par l’administration.
+                    </p>
+
+                    <a class="btn btn--primary btn--lg btn--block" id="wave-link" href="#" target="_blank" rel="noopener noreferrer" style="margin-top: var(--sp-4)" hidden>
+                      Ouvrir Wave et payer
+                    </a>
+
+                    <p class="muted" id="wave-missing" style="margin-top: var(--sp-4)" hidden>
+                      Le lien Wave n’est pas encore configuré. Contactez l’administration
+                      pour connaître le numéro à créditer.
+                    </p>
+                  </div>
+                </section>
+
+                <!-- Étape 2 : déclarer -->
+                <section class="card" aria-labelledby="titre-form">
+                  <div class="card__head">
+                    <div>
+                      <h2 class="card__title" id="titre-form">2. Déclarez le versement</h2>
+                      <p class="card__subtitle">Ces informations permettent la vérification</p>
+                    </div>
+                  </div>
+
+                  <div class="card__body">
+                    <form class="form" id="formulaire" novalidate>
+                      <div class="field">
+                        <label class="field__label required" for="amount">Montant versé</label>
+                        <div class="input-money">
+                          <input
+                            class="input"
+                            id="amount"
+                            name="amount"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="0"
+                            required
+                          />
+                          <span class="input-money__suffix" id="currency-suffix">FCFA</span>
+                        </div>
+                        <p class="field__hint" id="amount-hint">Minimum autorisé : —</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label required" for="payment_date">Date du versement</label>
+                        <input class="input" type="date" id="payment_date" name="payment_date" required />
+                        <p class="field__hint">La date figurant sur la confirmation Wave.</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label" for="reference">Référence de la transaction</label>
+                        <input
+                          class="input"
+                          type="text"
+                          id="reference"
+                          name="reference"
+                          maxlength="80"
+                          autocomplete="off"
+                          placeholder="Ex. TX123456789"
+                        />
+                        <p class="field__hint">
+                          Facultatif mais fortement recommandé : c’est ce qui permet
+                          de retrouver votre paiement chez Wave.
+                        </p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label" for="note">Précision</label>
+                        <textarea
+                          class="textarea"
+                          id="note"
+                          name="note"
+                          rows="3"
+                          maxlength="500"
+                          placeholder="Ex. versement de deux mois, ou paiement effectué par un proche."
+                        ></textarea>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <div class="field">
+                        <label class="field__label" for="proof">Justificatif</label>
+                        <input class="input" type="file" id="proof" name="proof" accept="image/jpeg,image/png,image/webp,application/pdf" />
+                        <p class="field__hint">
+                          Capture d’écran ou reçu PDF, 5 Mo maximum. Reste privé :
+                          seuls vous et l’administration pouvez le consulter.
+                        </p>
+                        <p class="field__hint" id="proof-name"></p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+
+                      <label class="checkbox">
+                        <input type="checkbox" id="certify" name="certify" required />
+                        <span>
+                          Je certifie avoir effectué ce versement et que les informations
+                          saisies sont exactes.
+                        </span>
+                      </label>
+
+                      <button class="btn btn--primary btn--lg btn--block" type="submit">
+                        Envoyer ma déclaration
+                      </button>
+
+                      <p class="muted" style="text-align: center">
+                        Une déclaration en attente ne modifie pas votre situation :
+                        seuls les versements validés sont pris en compte.
+                      </p>
+                    </form>
+                  </div>
+                </section>
+              </div>
+
+              <!-- Colonne latérale -->
+              <div class="stack stack--lg">
+                <section class="card card--pad" aria-labelledby="titre-situation">
+                  <h2 class="card__title" id="titre-situation">Votre situation</h2>
+
+                  <div class="stack" style="margin-top: var(--sp-4)">
+                    <div>
+                      <p class="stat__label">Reste à payer</p>
+                      <p class="stat__value" id="remaining-total">—</p>
+                    </div>
+
+                    <div>
+                      <p class="stat__label">Cotisation mensuelle</p>
+                      <p class="stat__value" id="monthly-amount" style="font-size: var(--fs-lg)">—</p>
+                    </div>
+
+                    <div id="suggest-block" hidden>
+                      <p class="stat__label">Montant suggéré</p>
+                      <p class="stat__value" id="suggest-amount" style="font-size: var(--fs-lg)">—</p>
+                      <button class="btn btn--secondary btn--sm btn--block" type="button" id="use-suggest" style="margin-top: var(--sp-2)">
+                        Utiliser ce montant
+                      </button>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="card card--pad" aria-labelledby="titre-suite">
+                  <h2 class="card__title" id="titre-suite">Et ensuite ?</h2>
+
+                  <ol style="display: grid; gap: var(--sp-3); margin-top: var(--sp-4); padding-left: 1.1rem">
+                    <li class="muted">
+                      Votre déclaration apparaît « en attente ».
+                    </li>
+                    <li class="muted">
+                      L’administration vérifie le versement auprès de Wave.
+                    </li>
+                    <li class="muted">
+                      Une fois validé, il est automatiquement imputé sur vos mois
+                      les plus anciens.
+                    </li>
+                    <li class="muted">
+                      En cas de refus, le motif est affiché dans votre historique.
+                    </li>
+                  </ol>
+                </section>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import {
+        $,
+        formatMoney,
+        formatDate,
+        toNumber,
+        toDateInputValue,
+        monthLabel,
+        withSubmitLock,
+      } from "./assets/js/utils.js";
+      import { toast, setFieldError, bindFieldCleanup } from "./assets/js/ui.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "./assets/js/supabase-client.js";
+      import { authErrorMessage } from "./assets/js/auth.js";
+      import { requireMember } from "./assets/js/guards.js";
+      import { mountShell, paintIdentity } from "./assets/js/app-shell.js";
+
+      const BUCKET = "payment-proofs";
+      const MAX_FILE_BYTES = 5 * 1024 * 1024;
+      const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+      const MAX_AMOUNT = 10_000_000;
+
+      const form = $("#formulaire");
+      const amountInput = $("#amount");
+      const dateInput = $("#payment_date");
+      const referenceInput = $("#reference");
+      const noteInput = $("#note");
+      const proofInput = $("#proof");
+      const certifyInput = $("#certify");
+      const submitButton = form.querySelector('button[type="submit"]');
+
+      let currentUser = null;
+      let currency = "XOF";
+      let minimumAmount = 500;
+      let suggestedAmount = 0;
+      let hasPendingPayment = false;
+
+      /* ---------- États ---------- */
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      function lockForm(reason) {
+        form.querySelectorAll("input, textarea, button").forEach((el) => {
+          el.disabled = true;
+        });
+        if (reason) toast(reason, "warning", { title: "Déclaration bloquée" });
+      }
+
+      /* ---------- Données ---------- */
+      async function loadContext(userId) {
+        const [settingsRes, summaryRes, pendingRes, periodsRes] = await Promise.all([
+          supabase
+            .from("app_settings")
+            .select("currency, min_payment_amount, default_monthly_amount, wave_payment_url, wave_instructions")
+            .maybeSingle(),
+          supabase.from("v_member_summary").select("*").eq("member_id", userId).maybeSingle(),
+          supabase
+            .from("payments")
+            .select("id, amount, payment_date, submitted_at")
+            .eq("member_id", userId)
+            .eq("status", "pending")
+            .maybeSingle(),
+          supabase
+            .from("v_member_period_status")
+            .select("year, month, expected, remaining, due_date, is_open, payment_state")
+            .eq("member_id", userId)
+            .gt("remaining", 0)
+            .order("year", { ascending: true })
+            .order("month", { ascending: true })
+            .limit(1),
+        ]);
+
+        const firstError = settingsRes.error || summaryRes.error || pendingRes.error || periodsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return false;
+        }
+
+        const settings = settingsRes.data ?? {};
+        currency = settings.currency || "XOF";
+        minimumAmount = Math.max(1, toNumber(settings.min_payment_amount) || 500);
+
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+
+        // Situation
+        $("#remaining-total").textContent = formatMoney(summaryRes.data?.remaining_total ?? 0, currency);
+
+        // Montant suggéré : reste de la prochaine période non soldée
+        const nextPeriod = periodsRes.data?.[0] ?? null;
+        const monthlyLabel = nextPeriod
+          ? toNumber(nextPeriod.expected)
+          : toNumber(settings.default_monthly_amount);
+        $("#monthly-amount").textContent = formatMoney(monthlyLabel, currency);
+
+        if (nextPeriod) {
+          suggestedAmount = Math.max(toNumber(nextPeriod.remaining), minimumAmount);
+          $("#suggest-amount").textContent = formatMoney(suggestedAmount, currency);
+          const periodName = monthLabel(nextPeriod.year, nextPeriod.month).toLowerCase();
+          $("#suggest-block").hidden = false;
+          $("#suggest-block").setAttribute("title", `Reste à régler pour ${periodName}`);
+        }
+
+        // Minimum
+        $("#amount-hint").textContent = `Minimum autorisé : ${formatMoney(minimumAmount, currency)}. Vous pouvez verser davantage : le surplus est imputé sur les mois suivants.`;
+        $("#currency-suffix").textContent = currency === "XOF" ? "FCFA" : currency;
+
+        // Lien Wave
+        const url = settings.wave_payment_url;
+        if (url && /^https?:\/\//i.test(url)) {
+          $("#wave-link").href = url;
+          $("#wave-link").hidden = false;
+          $("#wave-missing").hidden = true;
+        } else {
+          $("#wave-link").hidden = true;
+          $("#wave-missing").hidden = false;
+        }
+
+        if (settings.wave_instructions) {
+          $("#wave-instructions").textContent = settings.wave_instructions;
+        }
+
+        // Déclaration déjà en attente
+        if (pendingRes.data) {
+          hasPendingPayment = true;
+          $("#pending-banner").hidden = false;
+          $("#pending-text").textContent =
+            `Déclaration du ${formatDate(pendingRes.data.payment_date)} d’un montant de ` +
+            `${formatMoney(pendingRes.data.amount, currency)}.`;
+          lockForm();
+        }
+
+        return true;
+      }
+
+      /* ---------- Validation ---------- */
+      function validate() {
+        let valid = true;
+
+        const amount = toNumber(amountInput.value);
+        if (!amount) {
+          setFieldError(amountInput, "Indiquez le montant versé.");
+          valid = false;
+        } else if (amount < minimumAmount) {
+          setFieldError(amountInput, `Le minimum est de ${formatMoney(minimumAmount, currency)}.`);
+          valid = false;
+        } else if (amount > MAX_AMOUNT) {
+          setFieldError(amountInput, "Ce montant dépasse la limite autorisée. Vérifiez la saisie.");
+          valid = false;
+        }
+
+        const dateValue = dateInput.value;
+        if (!dateValue) {
+          setFieldError(dateInput, "Indiquez la date du versement.");
+          valid = false;
+        } else {
+          const chosen = new Date(`${dateValue}T00:00:00`);
+          const today = new Date();
+          today.setHours(23, 59, 59, 999);
+          if (chosen > today) {
+            setFieldError(dateInput, "La date ne peut pas être dans le futur.");
+            valid = false;
+          }
+        }
+
+        if (referenceInput.value.length > 80) {
+          setFieldError(referenceInput, "80 caractères maximum.");
+          valid = false;
+        }
+
+        const file = proofInput.files?.[0];
+        if (file) {
+          if (!ALLOWED_TYPES.includes(file.type)) {
+            setFieldError(proofInput, "Formats acceptés : JPEG, PNG, WebP ou PDF.");
+            valid = false;
+          } else if (file.size > MAX_FILE_BYTES) {
+            setFieldError(proofInput, "Le fichier dépasse 5 Mo.");
+            valid = false;
+          }
+        }
+
+        if (!certifyInput.checked) {
+          toast("Cochez la case de certification avant d’envoyer.", "warning");
+          valid = false;
+        }
+
+        return valid;
+      }
+
+      /* ---------- Envoi ---------- */
+      async function uploadProof(file) {
+        const extension = (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "");
+        // crypto.randomUUID n'existe pas hors contexte sécurisé (http sur IP
+        // locale) : on prévoit un repli pour que l'envoi fonctionne partout.
+        const unique = globalThis.crypto?.randomUUID?.() ??
+          `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        const path = `${currentUser.id}/${unique}.${extension}`;
+
+        const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+          contentType: file.type,
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+        if (error) return { path: null, error };
+        return { path, error: null };
+      }
+
+      async function submitDeclaration() {
+        const amount = toNumber(amountInput.value);
+        const file = proofInput.files?.[0] ?? null;
+
+        let proofPath = null;
+        if (file) {
+          const upload = await uploadProof(file);
+          if (upload.error) {
+            toast(
+              "Le justificatif n’a pas pu être envoyé. Réessayez avec un fichier plus léger.",
+              "error",
+              { title: "Envoi impossible", duration: 7000 }
+            );
+            return false;
+          }
+          proofPath = upload.path;
+        }
+
+        const { error } = await supabase.from("payments").insert({
+          member_id: currentUser.id,
+          amount,
+          payment_date: dateInput.value,
+          transaction_reference: referenceInput.value.trim() || null,
+          note: noteInput.value.trim() || null,
+          proof_path: proofPath,
+        });
+
+        if (error) {
+          // Fichier orphelin : on nettoie pour ne pas laisser de trace inutile.
+          if (proofPath) await supabase.storage.from(BUCKET).remove([proofPath]);
+
+          const message =
+            error.code === "23505"
+              ? "Vous avez déjà une déclaration en attente de vérification."
+              : authErrorMessage(error);
+
+          toast(message, "error", { title: "Déclaration refusée", duration: 8000 });
+          return false;
+        }
+
+        return true;
+      }
+
+      /* ---------- Démarrage ---------- */
+      async function boot() {
+        mountShell({ role: "member", active: "payment" });
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireMember();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        currentUser = session.user;
+        paintIdentity(profile);
+
+        dateInput.value = toDateInputValue();
+        dateInput.max = toDateInputValue();
+
+        const ready = await loadContext(session.user.id);
+        if (!ready) return;
+
+        bindFieldCleanup(form);
+
+        proofInput.addEventListener("change", () => {
+          const file = proofInput.files?.[0];
+          $("#proof-name").textContent = file ? `${file.name} · ${Math.round(file.size / 1024)} Ko` : "";
+        });
+
+        $("#use-suggest").addEventListener("click", () => {
+          if (!suggestedAmount) return;
+          amountInput.value = String(suggestedAmount);
+          setFieldError(amountInput, "");
+          amountInput.focus({ preventScroll: true });
+        });
+
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          if (hasPendingPayment) return;
+
+          if (!validate()) {
+            form.querySelector('[aria-invalid="true"]')?.focus();
+            return;
+          }
+
+          await withSubmitLock(submitButton, async () => {
+            const ok = await submitDeclaration();
+            if (!ok) return;
+
+            toast("Déclaration envoyée. L’administration va la vérifier.", "success", {
+              title: "C’est enregistré",
+              duration: 6000,
+            });
+
+            setTimeout(() => {
+              window.location.assign("history.html?state=sent");
+            }, 900);
+          });
+        });
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

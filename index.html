@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cœur d'Honneur — Cotisations du Centre Eau Vive Williamsville</title>
+    <meta
+      name="description"
+      content="Plateforme de suivi des cotisations mensuelles de la communauté Cœur d'Honneur — Centre Eau Vive Williamsville, Vases d'Honneur. Consultez votre situation, payez par Wave, suivez chaque mois."
+    />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="color-scheme" content="light" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,500;0,600;1,500&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/animations.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+  </head>
+
+  <body class="page-public">
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+    <div class="public-shell">
+      <div class="public-frame">
+        <!-- ============ En-tête ============ -->
+        <header class="site-header">
+          <a class="brand" href="index.html" aria-label="Cœur d'Honneur, accueil">
+            <span class="brand__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 12.6 12 20l-7.5-7.4a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l1 1 1-1a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z" />
+              </svg>
+            </span>
+            <span class="brand__word">Cœur d’Honneur</span>
+          </a>
+
+          <nav class="site-nav" aria-label="Navigation principale">
+            <a href="#fonctionnement">Fonctionnement</a>
+            <a href="#paiement">Paiement Wave</a>
+            <a href="#communaute">La communauté</a>
+          </nav>
+
+          <div class="site-header__actions">
+            <a class="btn btn--ghost" href="login.html">Se connecter</a>
+            <a class="btn btn--primary" href="login.html">
+              Accéder à mon espace
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
+              </svg>
+            </a>
+          </div>
+
+          <button
+            class="btn btn--ghost btn--icon nav-toggle"
+            type="button"
+            data-nav-toggle
+            aria-expanded="false"
+            aria-controls="menu-mobile"
+            aria-label="Ouvrir le menu"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
+            </svg>
+          </button>
+        </header>
+
+        <nav id="menu-mobile" class="mobile-menu" data-mobile-menu hidden aria-label="Navigation mobile">
+          <a href="#fonctionnement">Fonctionnement</a>
+          <a href="#paiement">Paiement Wave</a>
+          <a href="#communaute">La communauté</a>
+          <a href="login.html">Se connecter</a>
+        </nav>
+
+        <main id="contenu">
+          <!-- ============ Héros ============ -->
+          <section class="hero" aria-labelledby="titre-hero">
+            <div>
+              <p class="eyebrow">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <path d="M12 21s-7-4.6-7-10a7 7 0 0 1 14 0c0 5.4-7 10-7 10Z" />
+                  <circle cx="12" cy="11" r="2.5" />
+                </svg>
+                Centre Eau Vive Williamsville · Vases d’Honneur
+              </p>
+
+              <h1 class="hero__title" id="titre-hero">
+                Vos cotisations, <em>claires</em> et suivies.
+              </h1>
+
+              <p class="hero__lead">
+                Un seul endroit pour connaître votre situation, régler votre cotisation
+                par Wave et garder la trace de chaque mois. Transparent pour vous,
+                simple pour l’administration.
+              </p>
+
+              <div class="hero__actions">
+                <a class="btn btn--primary btn--lg" href="login.html">
+                  Accéder à mon espace
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
+                  </svg>
+                </a>
+                <a class="btn btn--secondary btn--lg" href="#fonctionnement">
+                  Comment ça marche
+                </a>
+              </div>
+
+              <dl class="hero__facts">
+                <div>
+                  <dt>Tranches de cotisation</dt>
+                  <dd>de 500 à 5 000 FCFA</dd>
+                </div>
+                <div>
+                  <dt>Paiement</dt>
+                  <dd>Wave, à tout moment</dd>
+                </div>
+                <div>
+                  <dt>Suivi</dt>
+                  <dd>mois par mois</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- Aperçu décoratif : aucune donnée réelle, masqué aux lecteurs d'écran -->
+            <div class="hero__card" aria-hidden="true">
+              <div class="hero__card-head">
+                <span class="chip">Aperçu</span>
+                <span class="badge badge--paid">À jour</span>
+              </div>
+
+              <div class="hero__ring">
+                <span>68 %</span>
+              </div>
+
+              <ul class="hero__lines">
+                <li>
+                  <span>Janvier</span>
+                  <span class="badge badge--paid">Payé</span>
+                </li>
+                <li>
+                  <span>Février</span>
+                  <span class="badge badge--paid">Payé</span>
+                </li>
+                <li>
+                  <span>Mars</span>
+                  <span class="badge badge--pending">En attente</span>
+                </li>
+                <li>
+                  <span>Avril</span>
+                  <span class="badge badge--unpaid">À payer</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- ============ Fonctionnement ============ -->
+          <section class="section" id="fonctionnement" aria-labelledby="titre-fonctionnement">
+            <div class="section-head reveal">
+              <p class="eyebrow">Suivre sa cotisation</p>
+              <h2 id="titre-fonctionnement">Trois gestes, et vous savez où vous en êtes.</h2>
+              <p class="muted">
+                Votre situation est calculée en temps réel à partir des paiements
+                que l’administration a vérifiés. Aucun chiffre approximatif.
+              </p>
+            </div>
+
+            <div class="panel-grid">
+              <article class="card card--pad card--hover feature reveal" data-delay="1">
+                <div class="feature__icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="17" rx="3" />
+                    <path d="M8 2v4M16 2v4M3 10h18" />
+                  </svg>
+                </div>
+                <h3>Consultez votre situation</h3>
+                <p>
+                  Le tableau de bord affiche le total attendu, le total réglé et le
+                  mois qu’il vous reste à régler, sans avoir à compter vous-même.
+                </p>
+              </article>
+
+              <article class="card card--pad card--hover feature reveal" data-delay="2">
+                <div class="feature__icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="3" />
+                    <path d="M2 10h20" />
+                  </svg>
+                </div>
+                <h3>Payez par Wave</h3>
+                <p>
+                  Le lien officiel de paiement est disponible dans votre espace.
+                  Vous choisissez le montant, puis vous déclarez votre règlement.
+                </p>
+              </article>
+
+              <article class="card card--pad card--hover feature reveal" data-delay="3">
+                <div class="feature__icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7" />
+                    <path d="M12 3v12" /><path d="m7 8 5-5 5 5" />
+                  </svg>
+                </div>
+                <h3>Gardez la trace</h3>
+                <p>
+                  Chaque règlement vérifié par l’administration apparaît dans votre
+                  historique, avec sa date, son montant et sa référence.
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <!-- ============ Paiement Wave ============ -->
+          <section class="section section--tight" id="paiement" aria-labelledby="titre-paiement">
+            <div class="wave-block reveal">
+              <div>
+                <p class="eyebrow">Paiement Wave</p>
+                <h2 id="titre-paiement">Vous payez sur Wave. Nous vérifions, puis nous enregistrons.</h2>
+                <p class="text-sm" style="margin-top: var(--sp-4)">
+                  Un paiement est confirmé uniquement après contrôle de la transaction
+                  par l’administration. Tant que ce contrôle n’est pas fait, votre
+                  règlement apparaît « en attente », jamais « payé ».
+                </p>
+                <div class="btn-row" style="margin-top: var(--sp-6)">
+                  <a class="btn btn--gold" href="login.html">
+                    Voir mon lien de paiement
+                  </a>
+                </div>
+              </div>
+
+              <ol class="steps">
+                <li>
+                  <strong>Ouvrez le lien Wave officiel</strong>
+                  <span>Il se trouve dans votre espace membre, dans la rubrique de paiement.</span>
+                </li>
+                <li>
+                  <strong>Indiquez la période concernée</strong>
+                  <span>Mettez « COTISATION — votre nom — mois » dans le libellé du transfert.</span>
+                </li>
+                <li>
+                  <strong>Déclarez votre paiement</strong>
+                  <span>Montant, date et référence de transaction, pour que l’administration puisse le retrouver.</span>
+                </li>
+                <li>
+                  <strong>Attendez la validation</strong>
+                  <span>Vous recevez une notification dès que le règlement est vérifié.</span>
+                </li>
+              </ol>
+            </div>
+          </section>
+
+          <!-- ============ Communauté ============ -->
+          <section class="section" id="communaute" aria-labelledby="titre-communaute">
+            <div class="panel-grid panel-grid--2">
+              <div class="reveal">
+                <p class="eyebrow">La communauté</p>
+                <h2 id="titre-communaute" style="margin-block: var(--sp-3)">
+                  Une contribution, un engagement commun.
+                </h2>
+                <p class="muted">
+                  Cœur d’Honneur rassemble les membres du Centre Eau Vive Williamsville,
+                  Vases d’Honneur. Chaque cotisation soutient la vie de la communauté :
+                  accueil, formation, solidarité et service.
+                </p>
+                <p class="muted" style="margin-top: var(--sp-4)">
+                  Cinq tranches de cotisation existent, de 500 à 5 000 FCFA par mois.
+                  Votre tranche est attribuée par l’administration ; le montant peut
+                  être ajusté au cas par cas.
+                </p>
+              </div>
+
+              <article class="card card--pad reveal" data-delay="1">
+                <h3 style="margin-bottom: var(--sp-4)">Tranches mensuelles</h3>
+                <ul role="list" class="stack stack--sm">
+                  <li class="between" style="padding-block: var(--sp-3); border-bottom: 1px solid var(--line)">
+                    <span class="muted">Tranche 1</span>
+                    <strong class="money">500 FCFA</strong>
+                  </li>
+                  <li class="between" style="padding-block: var(--sp-3); border-bottom: 1px solid var(--line)">
+                    <span class="muted">Tranche 2</span>
+                    <strong class="money">1 000 FCFA</strong>
+                  </li>
+                  <li class="between" style="padding-block: var(--sp-3); border-bottom: 1px solid var(--line)">
+                    <span class="muted">Tranche 3</span>
+                    <strong class="money">2 000 FCFA</strong>
+                  </li>
+                  <li class="between" style="padding-block: var(--sp-3); border-bottom: 1px solid var(--line)">
+                    <span class="muted">Tranche 4</span>
+                    <strong class="money">3 000 FCFA</strong>
+                  </li>
+                  <li class="between" style="padding-block: var(--sp-3)">
+                    <span class="muted">Tranche 5</span>
+                    <strong class="money">5 000 FCFA</strong>
+                  </li>
+                </ul>
+                <p class="text-xs muted" style="margin-top: var(--sp-4)">
+                  Le montant de chaque tranche est fixé par l’administration et peut
+                  évoluer d’une période à l’autre.
+                </p>
+              </article>
+            </div>
+          </section>
+        </main>
+
+        <!-- ============ Pied de page ============ -->
+        <footer class="site-footer">
+          <div>
+            <a class="brand" href="index.html">
+              <span class="brand__mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19.5 12.6 12 20l-7.5-7.4a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l1 1 1-1a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z" />
+                </svg>
+              </span>
+              <span class="brand__word">Cœur d’Honneur</span>
+            </a>
+            <p class="text-sm muted" style="margin-top: var(--sp-4); max-width: 34ch">
+              Centre Eau Vive Williamsville, Vases d’Honneur.
+              Plateforme de gestion des cotisations mensuelles.
+            </p>
+          </div>
+
+          <div>
+            <h4>Mon espace</h4>
+            <ul>
+              <li><a href="login.html">Se connecter</a></li>
+              <li><a href="login.html">Mes cotisations</a></li>
+              <li><a href="login.html">Mon historique</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4>Aide</h4>
+            <ul>
+              <li><a href="login.html">Mot de passe oublié</a></li>
+              <li><a href="#paiement">Paiement Wave</a></li>
+              <li><a href="#communaute">Les tranches</a></li>
+            </ul>
+          </div>
+
+          <div class="site-footer__bottom">
+            <span>© <span data-current-year>2026</span> Cœur d’Honneur — Vases d’Honneur</span>
+            <span>Les paiements sont vérifiés par l’administration avant validation.</span>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import "./assets/js/ui.js";
+      import { $$ } from "./assets/js/utils.js";
+
+      // Année courante dans le pied de page
+      $$("[data-current-year]").forEach((el) => {
+        el.textContent = String(new Date().getFullYear());
+      });
+    </script>
+  </body>
+</html>

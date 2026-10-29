@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Connexion — Cœur d'Honneur</title>
+    <meta
+      name="description"
+      content="Connexion à l'espace membre et à l'espace administrateur de la plateforme de cotisations Cœur d'Honneur."
+    />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="color-scheme" content="light" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@0,500;0,600;1,500&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="assets/css/variables.css" />
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/layout.css" />
+    <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet" href="assets/css/animations.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+  </head>
+
+  <body class="page-public">
+    <a class="skip-link" href="#formulaire">Aller au formulaire</a>
+
+    <div class="public-shell">
+      <div class="public-frame">
+        <!-- ============ En-tête ============ -->
+        <header class="site-header">
+          <a class="brand" href="index.html" aria-label="Cœur d'Honneur, accueil">
+            <span class="brand__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 12.6 12 20l-7.5-7.4a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l1 1 1-1a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z" />
+              </svg>
+            </span>
+            <span class="brand__word">Cœur d’Honneur</span>
+          </a>
+
+          <nav class="site-nav" aria-label="Navigation principale">
+            <a href="index.html">Accueil</a>
+            <a href="index.html#fonctionnement">Fonctionnement</a>
+            <a href="index.html#paiement">Paiement Wave</a>
+            <a href="index.html#communaute">La communauté</a>
+          </nav>
+
+          <div class="site-header__actions">
+            <a class="btn btn--ghost" href="index.html">Accueil</a>
+          </div>
+
+          <button
+            class="btn btn--ghost btn--icon nav-toggle"
+            type="button"
+            data-nav-toggle
+            aria-expanded="false"
+            aria-controls="menu-mobile"
+            aria-label="Ouvrir le menu"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
+            </svg>
+          </button>
+        </header>
+
+        <nav id="menu-mobile" class="mobile-menu" data-mobile-menu hidden aria-label="Navigation mobile">
+          <a href="index.html">Accueil</a>
+          <a href="index.html#fonctionnement">Fonctionnement</a>
+          <a href="index.html#paiement">Paiement Wave</a>
+          <a href="index.html#communaute">La communauté</a>
+          <a href="forgot-password.html">Mot de passe oublié</a>
+        </nav>
+
+        <div class="auth-grid">
+          <!-- ============ Panneau de marque ============ -->
+          <section class="auth-brand" aria-labelledby="titre-marque">
+            <div>
+              <h1 class="auth-brand__title" id="titre-marque">
+                Heureux de vous <em>revoir</em>.
+              </h1>
+              <p class="auth-brand__quote" style="margin-top: var(--sp-4)">
+                Retrouvez votre situation de cotisation, déclarez un paiement Wave
+                et suivez chaque règlement vérifié par l’administration.
+              </p>
+            </div>
+
+            <ul class="auth-brand__badges" role="list">
+              <li>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+                Accès personnel sécurisé
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+                Paiements vérifiés un par un
+              </li>
+            </ul>
+          </section>
+
+          <!-- ============ Formulaire ============ -->
+          <section class="auth-panel">
+            <div class="auth-form">
+              <div class="auth-form__head">
+                <p class="eyebrow">Espace personnel</p>
+                <h1>Connexion</h1>
+                <p>
+                  Utilisez l’adresse e-mail associée à votre compte de membre
+                  ou d’administrateur.
+                </p>
+              </div>
+
+              <form class="form" id="formulaire" novalidate autocomplete="on">
+                <div class="field">
+                  <label class="field__label" for="email">Adresse e-mail</label>
+                  <input
+                    class="input"
+                    type="email"
+                    id="email"
+                    name="email"
+                    inputmode="email"
+                    autocomplete="username"
+                    placeholder="prenom.nom@exemple.com"
+                    required
+                    aria-describedby="email-hint"
+                  />
+                  <p class="field__hint" id="email-hint">
+                    Le même e-mail que celui utilisé lors de votre inscription.
+                  </p>
+                  <p class="field__error" role="alert"></p>
+                </div>
+
+                <div class="field">
+                  <label class="field__label" for="password">Mot de passe</label>
+                  <div class="input-group">
+                    <input
+                      class="input"
+                      type="password"
+                      id="password"
+                      name="password"
+                      autocomplete="current-password"
+                      placeholder="Votre mot de passe"
+                      required
+                      minlength="8"
+                    />
+                    <button
+                      class="input-group__action"
+                      type="button"
+                      data-password-toggle="password"
+                      aria-label="Afficher le mot de passe"
+                      aria-pressed="false"
+                    ></button>
+                  </div>
+                  <p class="field__error" role="alert"></p>
+                </div>
+
+                <div class="auth-links">
+                  <a href="forgot-password.html">Mot de passe oublié ?</a>
+                </div>
+
+                <button class="btn btn--primary btn--lg btn--block" type="submit">
+                  Se connecter
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
+                  </svg>
+                </button>
+              </form>
+
+              <div class="auth-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 8h.01" /><path d="M11 12h1v4h1" />
+                </svg>
+                <p>
+                  Les comptes sont créés par l’administration. Il n’existe pas
+                  d’inscription publique, y compris pour les administrateurs.
+                  Pour obtenir un accès, contactez le secrétariat de la communauté.
+                </p>
+              </div>
+
+              <p class="text-sm text-center" style="margin-top: var(--sp-6)">
+                <a href="index.html" style="text-decoration: none">← Retour à l’accueil</a>
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { toast, setFieldError, bindFieldCleanup } from "./assets/js/ui.js";
+      import {
+        $,
+        isValidEmail,
+        withSubmitLock,
+        safeNextPath,
+      } from "./assets/js/utils.js";
+      import {
+        signIn,
+        fetchProfile,
+        homeForRole,
+        authErrorMessage,
+      } from "./assets/js/auth.js";
+      import { redirectIfAuthenticated } from "./assets/js/guards.js";
+
+      const form = $("#formulaire");
+      const emailInput = $("#email");
+      const passwordInput = $("#password");
+      const submitButton = form.querySelector('button[type="submit"]');
+
+      bindFieldCleanup(form);
+
+      // Message transmis par les pages protégées après expiration de session
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("reason") === "expired") {
+        toast("Votre session a expiré. Merci de vous reconnecter.", "warning");
+      }
+      if (params.get("reason") === "denied") {
+        toast("Cet espace ne correspond pas à votre rôle.", "error");
+      }
+      if (params.get("reason") === "inactive") {
+        toast(
+          "Votre compte est désactivé. Contactez l’administration pour le réactiver.",
+          "error",
+          { title: "Accès suspendu", duration: 8000 }
+        );
+      }
+
+      function validate() {
+        let valid = true;
+
+        const email = emailInput.value.trim();
+        if (!email) {
+          setFieldError(emailInput, "Saisissez votre adresse e-mail.");
+          valid = false;
+        } else if (!isValidEmail(email)) {
+          setFieldError(emailInput, "Cette adresse e-mail n’est pas valide.");
+          valid = false;
+        }
+
+        const password = passwordInput.value;
+        if (!password) {
+          setFieldError(passwordInput, "Saisissez votre mot de passe.");
+          valid = false;
+        } else if (password.length < 8) {
+          setFieldError(passwordInput, "Le mot de passe compte au moins 8 caractères.");
+          valid = false;
+        }
+
+        return valid;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!validate()) {
+          const firstError = form.querySelector('[aria-invalid="true"]');
+          firstError?.focus();
+          return;
+        }
+
+        const next = safeNextPath(params.get("next"), "");
+
+        await withSubmitLock(submitButton, async () => {
+          const { session, error } = await signIn(
+            emailInput.value,
+            passwordInput.value
+          );
+
+          if (error) {
+            const message = authErrorMessage(error);
+            if (/incorrect|mot de passe/i.test(message)) {
+              setFieldError(passwordInput, message);
+            }
+            toast(message, "error", {
+              title: "Connexion impossible",
+              duration: 7000,
+            });
+            return;
+          }
+
+          const { profile } = await fetchProfile(session.user.id);
+          toast(
+            profile?.full_name
+              ? `Bienvenue, ${profile.full_name}.`
+              : "Connexion réussie.",
+            "success",
+            { title: "Vous êtes connecté" }
+          );
+
+          // Le rôle est lu en base : jamais depuis l'URL ni le formulaire.
+          window.location.assign(next || homeForRole(profile?.role));
+        });
+      });
+
+      // Un visiteur déjà connecté n'a pas besoin du formulaire.
+      redirectIfAuthenticated();
+
+      emailInput.focus({ preventScroll: true });
+    </script>
+  </body>
+</html>

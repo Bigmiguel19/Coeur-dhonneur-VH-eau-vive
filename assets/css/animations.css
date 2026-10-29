@@ -1,0 +1,232 @@
+/* ==========================================================================
+   Cœur d'Honneur — animations.css
+   Animations légères : uniquement opacity et transform, jamais de
+   déplacement de mise en page. Tout est neutralisé si l'utilisateur
+   demande la réduction des animations.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Images clés
+   -------------------------------------------------------------------------- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fade-down {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Apparition au défilement
+   Utilisation : <div class="reveal">…</div>
+   ui.js ajoute .is-visible à l'entrée dans le champ de vision.
+   -------------------------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity var(--d-slow) var(--ease-out),
+    transform var(--d-slow) var(--ease-out);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+}
+
+/* Décalages progressifs pour les groupes de cartes */
+.reveal[data-delay="1"] {
+  transition-delay: 70ms;
+}
+.reveal[data-delay="2"] {
+  transition-delay: 140ms;
+}
+.reveal[data-delay="3"] {
+  transition-delay: 210ms;
+}
+.reveal[data-delay="4"] {
+  transition-delay: 280ms;
+}
+
+/* Variante sans translation (fondu simple) */
+.reveal--fade {
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   3. Transitions d'état des composants
+   -------------------------------------------------------------------------- */
+.is-enter {
+  animation: fade-up var(--d-slow) var(--ease-out) both;
+}
+
+.is-enter-fade {
+  animation: fade-in var(--d-base) var(--ease) both;
+}
+
+.is-enter-scale {
+  animation: scale-in var(--d-base) var(--ease-out) both;
+}
+
+/* Apparition du menu mobile */
+.mobile-menu:not([hidden]) {
+  animation: fade-down var(--d-base) var(--ease-out) both;
+}
+
+/* Indicateur de chargement discret */
+.dot-pulse {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.dot-pulse span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-soft 1200ms var(--ease) infinite;
+}
+
+.dot-pulse span:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.dot-pulse span:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+/* --------------------------------------------------------------------------
+   4. Transition entre pages (View Transitions API, repli silencieux)
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--d-base);
+    animation-timing-function: var(--ease);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Respect de prefers-reduced-motion
+   Aucune information ne dépend d'une animation : tout reste utilisable.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .skeleton::after {
+    display: none;
+  }
+
+  .btn:hover,
+  .card--hover:hover {
+    transform: none;
+  }
+}

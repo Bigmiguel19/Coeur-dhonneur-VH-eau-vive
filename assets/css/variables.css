@@ -1,0 +1,154 @@
+/* ==========================================================================
+   Cœur d'Honneur — variables.css
+   Source unique des jetons de design : couleurs, typographie, espacements,
+   rayons, ombres, mouvements, dimensions de mise en page.
+
+   Règle du projet : aucun code hexadécimal n'est écrit en dehors de ce
+   fichier. Les composants n'utilisent que les alias sémantiques.
+   ========================================================================== */
+
+:root {
+  /* ----------------------------------------------------------------------
+     1. Palette officielle
+     ---------------------------------------------------------------------- */
+  --c-terracotta: #C05C33;
+  --c-terracotta-700: #A34B27;
+  --c-terracotta-100: #F6E7E0;
+  --c-champagne: #E6CFA3;
+  --c-champagne-100: #FBF3E6;
+  --c-off-white: #FAF8F4;
+  --c-white: #FFFFFF;
+  --c-brown: #241A17;
+  --c-brown-800: #33251F;
+  --c-text: #292522;
+  --c-text-2: #77716B;
+  --c-border: #EAE4DC;
+  --c-border-strong: #DCD3C8;
+  --c-green: #287D52;
+  --c-green-100: #E7F1EB;
+  --c-red: #B94343;
+  --c-red-100: #F9E9E9;
+  --c-orange: #B87524;
+  --c-orange-100: #FBF0E1;
+
+  /* ----------------------------------------------------------------------
+     2. Alias sémantiques (seule couche utilisée par les composants)
+     ---------------------------------------------------------------------- */
+  --bg-page: var(--c-off-white);
+  --bg-surface: var(--c-white);
+  --bg-surface-alt: #F4F0E9;
+  --bg-deep: var(--c-brown);
+  --bg-deep-soft: var(--c-brown-800);
+  --bg-brand-soft: var(--c-terracotta-100);
+  --bg-gold-soft: var(--c-champagne-100);
+
+  --fg-primary: var(--c-text);
+  --fg-secondary: var(--c-text-2);
+  --fg-inverse: #F6F1E9;
+  --fg-inverse-muted: rgba(246, 241, 233, 0.68);
+
+  --line: var(--c-border);
+  --line-strong: var(--c-border-strong);
+
+  --accent: var(--c-terracotta);
+  --accent-hover: var(--c-terracotta-700);
+  --gold: var(--c-champagne);
+
+  --success: var(--c-green);
+  --success-bg: var(--c-green-100);
+  --danger: var(--c-red);
+  --danger-bg: var(--c-red-100);
+  --warning: var(--c-orange);
+  --warning-bg: var(--c-orange-100);
+
+  /* ----------------------------------------------------------------------
+     3. Typographie
+     ---------------------------------------------------------------------- */
+  --font-ui: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Palatino,
+    Georgia, serif;
+
+  --fs-2xs: 0.6875rem; /* 11px */
+  --fs-xs: 0.75rem; /* 12px */
+  --fs-sm: 0.875rem; /* 14px */
+  --fs-md: 1rem; /* 16px */
+  --fs-lg: 1.125rem; /* 18px */
+  --fs-xl: clamp(1.25rem, 1.15rem + 0.45vw, 1.5rem);
+  --fs-2xl: clamp(1.5rem, 1.3rem + 0.9vw, 1.9rem);
+  --fs-3xl: clamp(1.85rem, 1.45rem + 1.7vw, 2.6rem);
+  --fs-4xl: clamp(2.1rem, 1.5rem + 2.6vw, 3.4rem);
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.3;
+  --lh-base: 1.6;
+  --lh-loose: 1.7;
+
+  --tracking-tight: -0.022em;
+  --tracking-wide: 0.08em;
+
+  /* ----------------------------------------------------------------------
+     4. Espacements (base 4px)
+     ---------------------------------------------------------------------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 48px;
+  --sp-10: 64px;
+  --sp-11: 80px;
+  --sp-12: 96px;
+
+  /* ----------------------------------------------------------------------
+     5. Rayons
+     ---------------------------------------------------------------------- */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+  --r-2xl: 34px;
+  --r-full: 999px;
+
+  /* ----------------------------------------------------------------------
+     6. Ombres
+     ---------------------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgba(36, 26, 23, 0.06);
+  --shadow-sm: 0 2px 6px rgba(36, 26, 23, 0.06),
+    0 1px 2px rgba(36, 26, 23, 0.04);
+  --shadow-md: 0 12px 28px -12px rgba(36, 26, 23, 0.18);
+  --shadow-lg: 0 28px 60px -28px rgba(36, 26, 23, 0.28);
+  --shadow-frame: 0 60px 120px -60px rgba(0, 0, 0, 0.62);
+  --ring: 0 0 0 4px rgba(192, 92, 51, 0.18);
+  --ring-danger: 0 0 0 4px rgba(185, 67, 67, 0.16);
+
+  /* ----------------------------------------------------------------------
+     7. Mouvement
+     ---------------------------------------------------------------------- */
+  --d-fast: 140ms;
+  --d-base: 220ms;
+  --d-slow: 400ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ----------------------------------------------------------------------
+     8. Dimensions de mise en page
+     ---------------------------------------------------------------------- */
+  --sidebar-w: 264px;
+  --topbar-h: 68px;
+  --content-max: 1180px;
+  --frame-max: 1240px;
+  --tap: 44px; /* cible tactile minimale */
+
+  /* ----------------------------------------------------------------------
+     9. Plans d'empilement
+     ---------------------------------------------------------------------- */
+  --z-header: 20;
+  --z-drawer: 60;
+  --z-dialog: 80;
+  --z-toast: 90;
+}
