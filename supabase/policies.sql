@@ -50,11 +50,24 @@ create policy profiles_update_self
   using (id = (select auth.uid()))
   with check (id = (select auth.uid()));
 
+-- Administration : palier, activation et rôle, sur n'importe quelle ligne.
+-- Les colonnes ouvertes sont listées par le GRANT ci-dessous ; le trigger
+-- profiles_guard_update barre en plus toute tentative non administrative.
+drop policy if exists profiles_update_admin on public.profiles;
+create policy profiles_update_admin
+  on public.profiles
+  for update
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
+
 grant select on public.profiles to authenticated;
 
--- Seules ces deux colonnes sont modifiables par le membre.
--- role, is_active, tier_id et email sont réservés au serveur (service_role).
-grant update (full_name, phone) on public.profiles to authenticated;
+-- Colonnes modifiables : les deux premières par le membre (le trigger
+-- vérifie qu'il ne touche à rien d'autre), les trois suivantes par
+-- l'administration uniquement (le trigger refuse tout non-admin).
+grant update (full_name, phone, tier_id, is_active, role)
+  on public.profiles to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 2. contribution_tiers

@@ -19,6 +19,10 @@ const ICONS = {
     '<path d="M3 8a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2"/><path d="M3 8v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5a2 2 0 0 1-2-2Z"/><path d="M16 13h.01"/>',
   list: '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  users:
+    '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  alert:
+    '<path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
   shield: '<path d="M12 3 4 6v6c0 4.4 3.4 8.3 8 9 4.6-.7 8-4.6 8-9V6l-8-3Z"/>',
   logout:
     '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
@@ -42,7 +46,11 @@ const MENUS = {
   admin: [
     {
       title: "Administration",
-      items: [{ key: "dashboard", label: "Tableau de bord", href: "index.html", icon: "grid" }],
+      items: [
+        { key: "dashboard", label: "Tableau de bord", href: "index.html", icon: "grid" },
+        { key: "members", label: "Membres", href: "members.html", icon: "users" },
+        { key: "arrears", label: "Retards", href: "arrears.html", icon: "alert" },
+      ],
     },
     {
       title: "Mon compte",
@@ -107,7 +115,7 @@ function sidebarHtml(role, active, prefix) {
         </span>
       </div>
 
-      <button class="btn btn--ghost btn--sm btn--block" type="button" data-logout>
+      <button style="color:white;"class="btn btn--ghost btn--sm btn--block" type="button" data-logout>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
           style="width: 16px; height: 16px">${ICONS.logout}</svg>
@@ -152,7 +160,7 @@ export function mountShell({ role = "member", active = "", prefix = "" } = {}) {
   if (topbar) topbar.innerHTML = topbarHtml(prefix);
 
   initDrawer();
-  initLogout();
+  initLogout(prefix);
 }
 
 /**
@@ -236,11 +244,11 @@ function initDrawer() {
   });
 }
 
-function initLogout() {
+function initLogout(prefix = "") {
   document.querySelectorAll("[data-logout]").forEach((button) => {
     button.addEventListener("click", async () => {
       button.disabled = true;
-      await signOut({ redirectTo: "index.html" });
+      await signOut({ redirectTo: `${prefix}index.html` });
     });
   });
 }

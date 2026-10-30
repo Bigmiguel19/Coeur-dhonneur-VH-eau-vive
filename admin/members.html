@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Gestion des membres — Cœur d'Honneur, Centre Eau Vive Williamsville." />
+    <title>Membres — Administration — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/animations.css" />
+    <link rel="stylesheet" href="../assets/css/responsive.css" />
+    <link rel="stylesheet" href="../assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'administration"></aside>
+
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h1>Membres</h1>
+              <p>Paliers de cotisation, coordonnées et statut des comptes.</p>
+            </div>
+
+            <div class="btn-row">
+              <div class="field" style="margin: 0">
+                <label class="field__label" for="search" style="margin: 0">Rechercher</label>
+                <input
+                  class="input"
+                  id="search"
+                  type="search"
+                  placeholder="Nom ou adresse e-mail"
+                  autocomplete="off"
+                  style="min-width: 220px"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="page" hidden>
+            <div class="grid-stats" style="margin-bottom: var(--sp-6)">
+              <article class="stat stat--accent">
+                <p class="stat__label">Membres actifs</p>
+                <p class="stat__value" id="kpi-active">—</p>
+                <p class="stat__meta">Comptes habilités à déclarer</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Suspendus</p>
+                <p class="stat__value" id="kpi-suspended">—</p>
+                <p class="stat__meta">Déclarations refusées à l'envoi</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Sans palier</p>
+                <p class="stat__value" id="kpi-untiered">—</p>
+                <p class="stat__meta">Cotisation attendue inconnue</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Administrateurs</p>
+                <p class="stat__value" id="kpi-admins">—</p>
+                <p class="stat__meta">Comptes d'administration</p>
+              </article>
+            </div>
+
+            <section class="card" aria-labelledby="titre-membres">
+              <div class="card__head">
+                <div>
+                  <h2 class="card__title" id="titre-membres">Registre des membres</h2>
+                  <p class="card__subtitle" id="liste-subtitle">—</p>
+                </div>
+                <span class="badge badge--pending" id="liste-count">0</span>
+              </div>
+
+              <div class="card__body">
+                <div class="table-wrap" id="table-wrap">
+                  <table class="table table--stack">
+                    <caption class="sr-only">Membres de la communauté</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Membre</th>
+                        <th scope="col">Téléphone</th>
+                        <th scope="col">Palier</th>
+                        <th scope="col">Inscrit le</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="members-body"></tbody>
+                  </table>
+                </div>
+
+                <div class="empty" id="members-empty" hidden>
+                  <p class="empty__title">Aucun membre</p>
+                  <p class="empty__text" id="members-empty-text">
+                    Les comptes apparaissent ici dès la première inscription.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <p class="muted" style="margin-top: var(--sp-4)">
+              Le palier fixe le montant attendu chaque mois. Un compte suspendu ne peut plus
+              déclarer de versement ; son historique est conservé intégralement.
+            </p>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { $, formatMoney, formatDate, createEl, withSubmitLock } from "../assets/js/utils.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
+      import { authErrorMessage } from "../assets/js/auth.js";
+      import { requireAdmin } from "../assets/js/guards.js";
+      import { toast, confirmDialog } from "../assets/js/ui.js";
+      import { mountShell, paintIdentity } from "../assets/js/app-shell.js";
+
+      let currency = "XOF";
+      let members = [];
+      let tiers = [];
+      let searchTerm = "";
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      /* ---------- Chargement ---------- */
+      async function loadMembers() {
+        const [membersRes, tiersRes, settingsRes] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select(
+              "id, full_name, email, phone, role, is_active, tier_id, created_at, " +
+                "contribution_tiers(label, monthly_amount)"
+            )
+            .order("full_name")
+            .limit(300),
+          supabase
+            .from("contribution_tiers")
+            .select("id, label, monthly_amount, is_active")
+            .order("monthly_amount"),
+          supabase.from("app_settings").select("currency").maybeSingle(),
+        ]);
+
+        const firstError = membersRes.error || tiersRes.error || settingsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return;
+        }
+
+        currency = settingsRes.data?.currency || "XOF";
+        members = membersRes.data ?? [];
+        tiers = tiersRes.data ?? [];
+
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+
+        paintStats();
+        render();
+      }
+
+      function paintStats() {
+        const actives = members.filter((m) => m.role === "member" && m.is_active);
+        const suspended = members.filter((m) => m.role === "member" && !m.is_active);
+        const untiered = members.filter((m) => m.role === "member" && !m.tier_id);
+        const admins = members.filter((m) => m.role === "admin");
+
+        $("#kpi-active").textContent = String(actives.length);
+        $("#kpi-suspended").textContent = String(suspended.length);
+        $("#kpi-untiered").textContent = String(untiered.length);
+        $("#kpi-admins").textContent = String(admins.length);
+      }
+
+      /* ---------- Rendu ---------- */
+      function render() {
+        const needle = searchTerm.trim().toLowerCase();
+        const visible = needle
+          ? members.filter(
+              (m) =>
+                (m.full_name ?? "").toLowerCase().includes(needle) ||
+                (m.email ?? "").toLowerCase().includes(needle) ||
+                (m.phone ?? "").toLowerCase().includes(needle)
+            )
+          : members;
+
+        $("#liste-count").textContent = String(visible.length);
+        $("#liste-subtitle").textContent = needle
+          ? `Résultats pour « ${searchTerm.trim()} »`
+          : `${members.length} compte${members.length > 1 ? "s" : ""} enregistré${members.length > 1 ? "s" : ""}`;
+
+        const tbody = $("#members-body");
+        tbody.replaceChildren();
+
+        if (!visible.length) {
+          $("#members-empty").hidden = false;
+          $("#members-empty-text").textContent = needle
+            ? "Aucun membre ne correspond à cette recherche."
+            : "Les comptes apparaissent ici dès la première inscription.";
+          $("#table-wrap").hidden = true;
+          return;
+        }
+
+        $("#members-empty").hidden = true;
+        $("#table-wrap").hidden = false;
+
+        for (const member of visible) {
+          tbody.append(buildRow(member));
+        }
+      }
+
+      function buildRow(member) {
+        const row = createEl("tr");
+        const name = member.full_name || member.email || "—";
+
+        const memberCell = createEl("td", { "data-label": "Membre" });
+        const memberLines = [createEl("span", { text: name })];
+        if (member.email) {
+          memberLines.push(createEl("span", { class: "muted", text: member.email }));
+        }
+        if (member.role === "admin") {
+          memberLines.push(createEl("span", { class: "muted", text: "Administrateur" }));
+        }
+        memberCell.append(createEl("span", { class: "cell-value" }, memberLines));
+
+        row.append(
+          memberCell,
+          createEl("td", { "data-label": "Téléphone", text: member.phone || "—" }),
+          buildTierCell(member),
+          createEl("td", { "data-label": "Inscrit le", text: formatDate(member.created_at) }),
+          buildStatusCell(member),
+          buildActionsCell(member)
+        );
+
+        return row;
+      }
+
+      function buildTierCell(member) {
+        const cell = createEl("td", { "data-label": "Palier" });
+        const select = createEl("select", {
+          class: "select",
+          "aria-label": `Palier de cotisation de ${member.full_name || member.email}`,
+          style: "min-width: 190px",
+        });
+
+        // Option « sans palier » : la cotisation attendue est inconnue.
+        select.append(
+          createEl("option", { value: "", text: "— Sans palier —" })
+        );
+
+        const selectable = new Map();
+        for (const tier of tiers) {
+          if (tier.is_active || tier.id === member.tier_id) {
+            selectable.set(tier.id, tier);
+          }
+        }
+        for (const tier of selectable.values()) {
+          const option = createEl("option", {
+            value: tier.id,
+            text: `${tier.label} — ${formatMoney(tier.monthly_amount, currency)}`,
+          });
+          if (tier.id === member.tier_id) option.selected = true;
+          select.append(option);
+        }
+
+        select.addEventListener("change", async () => {
+          const value = select.value || null;
+          const ok = await applyMemberUpdate(member, { tier_id: value }, "Palier enregistré.");
+          if (!ok) return;
+          // Mise à jour en place : la ligne garde le focus au clavier.
+          const row = select.closest("tr");
+          row?.querySelector('td[data-role="status"]')?.replaceWith(buildStatusCell(member));
+        });
+
+        cell.append(select);
+        return cell;
+      }
+
+      function buildStatusCell(member) {
+        const cell = createEl("td", { "data-label": "Statut", "data-role": "status" });
+        const lines = [];
+
+        if (member.role === "admin") {
+          lines.push(createEl("span", { class: "badge badge--paid", text: "Administration" }));
+        } else if (member.is_active) {
+          lines.push(createEl("span", { class: "badge badge--paid", text: "Actif" }));
+        } else {
+          lines.push(createEl("span", { class: "badge badge--unpaid", text: "Suspendu" }));
+        }
+
+        const tier = tiers.find((t) => t.id === member.tier_id);
+        if (tier) {
+          lines.push(createEl("span", { class: "muted", text: tier.label }));
+        } else {
+          lines.push(createEl("span", { class: "muted", text: "Aucun palier" }));
+        }
+
+        cell.append(createEl("span", { class: "cell-value" }, lines));
+        return cell;
+      }
+
+      function buildActionsCell(member) {
+        const cell = createEl("td", { class: "cell-actions", "data-label": "Actions" });
+        if (member.role === "admin") {
+          cell.append(createEl("span", { class: "muted", text: "Compte d'administration" }));
+          return cell;
+        }
+
+        const suspending = member.is_active;
+        const button = createEl(
+          "button",
+          {
+            type: "button",
+            class: suspending ? "btn btn--secondary btn--sm" : "btn btn--primary btn--sm",
+            "aria-label": `${suspending ? "Suspendre" : "Réactiver"} ${member.full_name || member.email}`,
+          },
+          suspending ? "Suspendre" : "Réactiver"
+        );
+
+        button.addEventListener("click", () => toggleActive(member, button));
+        cell.append(createEl("div", { class: "cell-actions__row" }, [button]));
+        return cell;
+      }
+
+      /* ---------- Écritures ---------- */
+      async function applyMemberUpdate(member, payload, successMessage) {
+        const { data, error } = await supabase
+          .from("profiles")
+          .update(payload)
+          .eq("id", member.id)
+          .select("id");
+
+        if (error) {
+          toast(actionError(error), "error");
+          await loadMembers();
+          return false;
+        }
+        if (!data || data.length === 0) {
+          toast("Ce compte n'existe plus.", "warning");
+          await loadMembers();
+          return false;
+        }
+
+        Object.assign(member, payload);
+        toast(successMessage, "success");
+        paintStats();
+        return true;
+      }
+
+      async function toggleActive(member, button) {
+        const name = member.full_name || member.email;
+        const suspending = member.is_active;
+
+        const ok = await confirmDialog({
+          title: suspending ? "Suspendre ce compte ?" : "Réactiver ce compte ?",
+          message: suspending
+            ? `${name} ne pourra plus déclarer de versement ni se connecter utilement. Son historique de cotisations est conservé.`
+            : `${name} pourra de nouveau déclarer des versements et suivre sa situation.`,
+          confirmLabel: suspending ? "Suspendre le compte" : "Réactiver le compte",
+          tone: suspending ? "danger" : "primary",
+        });
+        if (!ok) return;
+
+        await withSubmitLock(button, async () => {
+          const ok = await applyMemberUpdate(
+            member,
+            { is_active: !member.is_active },
+            suspending ? "Compte suspendu." : "Compte réactivé."
+          );
+          if (ok) render();
+        });
+      }
+
+      function actionError(error) {
+        const code = String(error?.code ?? "");
+        if (code === "P0001" || code === "22023") return error.message;
+        if (code === "42501") return "Cette action est réservée à l'administration.";
+        return authErrorMessage(error);
+      }
+
+      /* ---------- Démarrage ---------- */
+      function initSearch() {
+        const input = $("#search");
+        input.addEventListener("input", () => {
+          searchTerm = input.value;
+          render();
+        });
+      }
+
+      async function boot() {
+        mountShell({ role: "admin", active: "members", prefix: "../" });
+        initSearch();
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireAdmin();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        paintIdentity(profile);
+
+        try {
+          await loadMembers();
+        } catch (loadError) {
+          showFatal(authErrorMessage(loadError));
+        }
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

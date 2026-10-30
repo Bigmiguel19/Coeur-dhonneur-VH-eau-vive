@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Retards de cotisation — Cœur d'Honneur, Centre Eau Vive Williamsville." />
+    <title>Retards — Administration — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/animations.css" />
+    <link rel="stylesheet" href="../assets/css/responsive.css" />
+    <link rel="stylesheet" href="../assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'administration"></aside>
+
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h1>Retards de cotisation</h1>
+              <p>Membres ayant dépassé une échéance, hors délai de grâce.</p>
+            </div>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="page" hidden>
+            <div class="grid-stats" style="margin-bottom: var(--sp-6)">
+              <article class="stat stat--accent">
+                <p class="stat__label">Membres en retard</p>
+                <p class="stat__value" id="kpi-members">—</p>
+                <p class="stat__meta">Au moins une échéance dépassée</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Total à recouvrer</p>
+                <p class="stat__value" id="kpi-due">—</p>
+                <p class="stat__meta">Cumul des écarts constatés</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Plus ancien retard</p>
+                <p class="stat__value" id="kpi-oldest">—</p>
+                <p class="stat__meta" id="kpi-oldest-date">—</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Comptes suspendus</p>
+                <p class="stat__value" id="kpi-suspended">—</p>
+                <p class="stat__meta">En retard et déjà suspendus</p>
+              </article>
+            </div>
+
+            <section class="card" aria-labelledby="titre-retards">
+              <div class="card__head">
+                <div>
+                  <h2 class="card__title" id="titre-retards">Décomposition par membre</h2>
+                  <p class="card__subtitle">Du plus gros écart au plus faible</p>
+                </div>
+                <span class="badge badge--late" id="liste-count">0</span>
+              </div>
+
+              <div class="card__body">
+                <div class="table-wrap" id="table-wrap">
+                  <table class="table table--stack">
+                    <caption class="sr-only">Membres en retard de cotisation</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Membre</th>
+                        <th scope="col">Téléphone</th>
+                        <th scope="col" class="table__num">Mois en retard</th>
+                        <th scope="col" class="table__num">Montant dû</th>
+                        <th scope="col">Depuis</th>
+                        <th scope="col">Compte</th>
+                      </tr>
+                    </thead>
+                    <tbody id="arrears-body"></tbody>
+                  </table>
+                </div>
+
+                <div class="empty" id="arrears-empty" hidden>
+                  <p class="empty__title">Aucun retard</p>
+                  <p class="empty__text">
+                    Toutes les échéances ouvertes sont couvertes, délai de grâce compris.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <p class="muted" style="margin-top: var(--sp-4)">
+              Un mois compte comme en retard lorsque la date d'échéance augmentée du délai de
+              grâce est dépassée et que le montant attendu n'est pas couvert par des versements
+              confirmés. Une déclaration en attente de vérification ne réduit pas le retard.
+            </p>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { $, formatMoney, formatDate, monthLabel, createEl } from "../assets/js/utils.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
+      import { authErrorMessage } from "../assets/js/auth.js";
+      import { requireAdmin } from "../assets/js/guards.js";
+      import { mountShell, paintIdentity } from "../assets/js/app-shell.js";
+
+      let currency = "XOF";
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      async function loadArrears() {
+        const [arrearsRes, settingsRes] = await Promise.all([
+          supabase
+            .from("v_member_arrears")
+            .select(
+              "member_id, full_name, email, phone, is_active, months_late, amount_due, " +
+                "first_late_key, first_due_date"
+            )
+            .order("amount_due", { ascending: false })
+            .limit(300),
+          supabase.from("app_settings").select("currency").maybeSingle(),
+        ]);
+
+        const firstError = arrearsRes.error || settingsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return;
+        }
+
+        currency = settingsRes.data?.currency || "XOF";
+        const arrears = arrearsRes.data ?? [];
+
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+
+        paintStats(arrears);
+        render(arrears);
+      }
+
+      function paintStats(arrears) {
+        const totalDue = arrears.reduce((sum, item) => sum + Number(item.amount_due || 0), 0);
+        const oldest = arrears.reduce(
+          (min, item) => (min === null || Number(item.first_late_key) < min ? Number(item.first_late_key) : min),
+          null
+        );
+        const oldestRow = arrears.find((item) => Number(item.first_late_key) === oldest);
+
+        $("#kpi-members").textContent = String(arrears.length);
+        $("#kpi-due").textContent = formatMoney(totalDue, currency);
+        $("#kpi-oldest").textContent =
+          oldest !== null ? monthLabel(Math.floor(oldest / 100), oldest % 100) : "—";
+        $("#kpi-oldest-date").textContent = oldestRow
+          ? `Échéance du ${formatDate(oldestRow.first_due_date)}`
+          : "—";
+        $("#kpi-suspended").textContent = String(arrears.filter((item) => !item.is_active).length);
+      }
+
+      function render(arrears) {
+        $("#liste-count").textContent = String(arrears.length);
+
+        const tbody = $("#arrears-body");
+        tbody.replaceChildren();
+
+        if (!arrears.length) {
+          $("#arrears-empty").hidden = false;
+          $("#table-wrap").hidden = true;
+          return;
+        }
+
+        $("#arrears-empty").hidden = true;
+        $("#table-wrap").hidden = false;
+
+        for (const item of arrears) {
+          const row = createEl("tr");
+          const name = item.full_name || item.email || "—";
+
+          const memberCell = createEl("td", { "data-label": "Membre" });
+          const memberLines = [createEl("span", { text: name })];
+          if (item.email) {
+            memberLines.push(createEl("span", { class: "muted", text: item.email }));
+          }
+          memberCell.append(createEl("span", { class: "cell-value" }, memberLines));
+
+          const key = Number(item.first_late_key);
+          const sinceCell = createEl("td", { "data-label": "Depuis" });
+          const sinceLines = [
+            createEl("span", {
+              text: key ? monthLabel(Math.floor(key / 100), key % 100) : "—",
+            }),
+          ];
+          if (item.first_due_date) {
+            sinceLines.push(
+              createEl("span", { class: "muted", text: `échéance du ${formatDate(item.first_due_date)}` })
+            );
+          }
+          sinceCell.append(createEl("span", { class: "cell-value" }, sinceLines));
+
+          const accountCell = createEl("td", { "data-label": "Compte" });
+          accountCell.append(
+            createEl("span", {
+              class: item.is_active ? "badge badge--pending" : "badge badge--unpaid",
+              text: item.is_active ? "Actif" : "Suspendu",
+            })
+          );
+
+          row.append(
+            memberCell,
+            createEl("td", { "data-label": "Téléphone", text: item.phone || "—" }),
+            createEl("td", {
+              class: "table__num",
+              "data-label": "Mois en retard",
+              text: String(item.months_late ?? 0),
+            }),
+            createEl("td", {
+              class: "table__num",
+              "data-label": "Montant dû",
+              text: formatMoney(item.amount_due, currency),
+            }),
+            sinceCell,
+            accountCell
+          );
+
+          tbody.append(row);
+        }
+      }
+
+      async function boot() {
+        mountShell({ role: "admin", active: "arrears", prefix: "../" });
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireAdmin();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        paintIdentity(profile);
+
+        try {
+          await loadArrears();
+        } catch (loadError) {
+          showFatal(authErrorMessage(loadError));
+        }
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

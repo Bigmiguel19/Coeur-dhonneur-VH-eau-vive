@@ -26,86 +26,12 @@
 
   <body>
     <div class="app-shell">
-      <aside class="sidebar" id="sidebar" aria-label="Navigation de l'administration">
-        <a class="brand sidebar__brand" href="../index.html" aria-label="Cœur d'Honneur, accueil">
-          <span class="brand__mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19.5 12.6 12 20l-7.5-7.4a4.6 4.6 0 0 1 0-6.5 4.6 4.6 0 0 1 6.5 0l1 1 1-1a4.6 4.6 0 0 1 6.5 0 4.6 4.6 0 0 1 0 6.5Z" />
-            </svg>
-          </span>
-          <span class="brand__word">Cœur d’Honneur</span>
-        </a>
-
-        <nav class="sidebar__nav" aria-label="Sections">
-          <p class="sidebar__group">Administration</p>
-
-          <a class="nav-link is-active" href="index.html" aria-current="page">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="3" width="7" height="9" rx="2" />
-              <rect x="14" y="3" width="7" height="5" rx="2" />
-              <rect x="14" y="12" width="7" height="9" rx="2" />
-              <rect x="3" y="16" width="7" height="5" rx="2" />
-            </svg>
-            Tableau de bord
-          </a>
-
-          <p class="sidebar__group">Mon compte</p>
-
-          <a class="nav-link" href="../dashboard.html">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21a8 8 0 0 1 16 0" />
-            </svg>
-            Mon espace membre
-          </a>
-        </nav>
-
-        <div class="sidebar__foot">
-          <div class="user-chip">
-            <span class="avatar" id="user-initials" aria-hidden="true">—</span>
-            <span class="user-chip__text">
-              <span class="user-chip__name" id="user-name">Chargement…</span>
-              <span class="user-chip__role">Administrateur</span>
-            </span>
-          </div>
-
-          <button class="btn btn--ghost btn--sm btn--block" type="button" data-logout>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 16px; height: 16px">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <path d="m16 17 5-5-5-5" />
-              <path d="M21 12H9" />
-            </svg>
-            Se déconnecter
-          </button>
-        </div>
-      </aside>
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'administration"></aside>
 
       <div class="scrim" id="scrim" hidden></div>
 
       <div class="app-main">
-        <header class="topbar">
-          <button
-            class="btn btn--ghost btn--icon topbar__toggle"
-            type="button"
-            id="sidebar-toggle"
-            aria-expanded="false"
-            aria-controls="sidebar"
-            aria-label="Ouvrir le menu"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
-            </svg>
-          </button>
-
-          <div class="topbar__hello">
-            <span class="topbar__name" id="topbar-name">Administration</span>
-            <span class="topbar__date" id="topbar-date"></span>
-          </div>
-
-          <span class="topbar__spacer"></span>
-
-          <a class="btn btn--ghost btn--sm" href="../index.html">Voir le site</a>
-        </header>
+        <header class="topbar" id="app-topbar"></header>
 
         <main class="content">
           <div class="page-head">
@@ -246,11 +172,12 @@
     <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
 
     <script type="module">
-      import { $, formatMoney, formatDate, formatRelative, initials, toNumber, createEl, withSubmitLock } from "../assets/js/utils.js";
+      import { $, formatMoney, formatDate, formatRelative, toNumber, createEl, withSubmitLock } from "../assets/js/utils.js";
       import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
-      import { signOut, authErrorMessage } from "../assets/js/auth.js";
+      import { authErrorMessage } from "../assets/js/auth.js";
       import { requireAdmin } from "../assets/js/guards.js";
       import { toast, confirmDialog, setFieldError } from "../assets/js/ui.js";
+      import { mountShell, paintIdentity } from "../assets/js/app-shell.js";
 
       let currency = "XOF";
       let pendingRejectId = null;
@@ -260,19 +187,6 @@
         $("#admin-dashboard").hidden = true;
         $("#boot-error-text").textContent = message;
         $("#boot-error").hidden = false;
-      }
-
-      function paintUser(profile) {
-        const name = profile.full_name || profile.email || "Administrateur";
-        $("#user-name").textContent = name;
-        $("#user-initials").textContent = initials(name) || "—";
-        $("#topbar-name").textContent = `Bonjour, ${name.split(" ")[0]}`;
-        $("#topbar-date").textContent = new Intl.DateTimeFormat("fr-FR", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }).format(new Date());
       }
 
       async function loadAdmin() {
@@ -485,41 +399,8 @@
         });
       }
 
-      function initDrawer() {
-        const sidebar = $("#sidebar");
-        const scrim = $("#scrim");
-        const toggle = $("#sidebar-toggle");
-        if (!sidebar || !toggle || !scrim) return;
-
-        const setOpen = (open) => {
-          sidebar.classList.toggle("is-open", open);
-          scrim.hidden = !open;
-          scrim.classList.toggle("is-visible", open);
-          toggle.setAttribute("aria-expanded", String(open));
-        };
-
-        toggle.addEventListener("click", () => setOpen(!sidebar.classList.contains("is-open")));
-        scrim.addEventListener("click", () => setOpen(false));
-        document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape") setOpen(false);
-        });
-        sidebar.addEventListener("click", (event) => {
-          if (event.target.closest("a")) setOpen(false);
-        });
-      }
-
-      function initLogout() {
-        document.querySelectorAll("[data-logout]").forEach((button) => {
-          button.addEventListener("click", async () => {
-            button.disabled = true;
-            await signOut({ redirectTo: "index.html" });
-          });
-        });
-      }
-
       async function boot() {
-        initDrawer();
-        initLogout();
+        mountShell({ role: "admin", active: "dashboard", prefix: "../" });
         initRejectDialog();
 
         if (!IS_CONFIGURED) {
@@ -535,7 +416,7 @@
           return;
         }
 
-        paintUser(profile);
+        paintIdentity(profile);
 
         try {
           await loadAdmin();
