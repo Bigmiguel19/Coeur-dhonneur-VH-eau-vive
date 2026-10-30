@@ -180,7 +180,7 @@
 
               <div class="card__body">
                 <div class="table-wrap" id="queue-wrap">
-                  <table class="table">
+                  <table class="table table--stack">
                     <caption class="sr-only">File d’attente des versements déclarés</caption>
                     <thead>
                       <tr>
@@ -327,14 +327,12 @@
           const row = createEl("tr");
           const memberName = item.full_name || item.email || "—";
 
-          const memberCell = createEl("td");
-          memberCell.append(createEl("span", { text: memberName }));
+          const memberCell = createEl("td", { "data-label": "Membre" });
+          const memberLines = [createEl("span", { text: memberName })];
           if (item.email) {
-            memberCell.append(
-              createEl("br"),
-              createEl("span", { class: "muted", text: item.email })
-            );
+            memberLines.push(createEl("span", { class: "muted", text: item.email }));
           }
+          memberCell.append(createEl("span", { class: "cell-value" }, memberLines));
 
           const reference = item.transaction_reference || "—";
 
@@ -361,9 +359,12 @@
           confirmButton.addEventListener("click", () => confirmPayment(item, confirmButton));
           rejectButton.addEventListener("click", () => openRejectDialog(item));
 
-          const actions = createEl("td");
+          const actions = createEl("td", {
+            class: "cell-actions",
+            "data-label": "Actions",
+          });
           actions.append(
-            createEl("div", { style: "display: flex; gap: var(--sp-2); flex-wrap: wrap" }, [
+            createEl("div", { class: "cell-actions__row" }, [
               confirmButton,
               rejectButton,
             ])
@@ -371,10 +372,14 @@
 
           row.append(
             memberCell,
-            createEl("td", { text: formatDate(item.payment_date) }),
-            createEl("td", { class: "table__num", text: formatMoney(item.amount, currency) }),
-            createEl("td", { text: reference }),
-            createEl("td", { text: formatRelative(item.submitted_at) }),
+            createEl("td", { "data-label": "Payé le", text: formatDate(item.payment_date) }),
+            createEl("td", {
+              class: "table__num",
+              "data-label": "Montant",
+              text: formatMoney(item.amount, currency),
+            }),
+            createEl("td", { "data-label": "Référence", text: reference }),
+            createEl("td", { "data-label": "Reçue", text: formatRelative(item.submitted_at) }),
             actions
           );
 

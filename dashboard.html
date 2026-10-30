@@ -204,7 +204,7 @@
                   </div>
 
                   <div class="table-wrap">
-                    <table class="table">
+                    <table class="table table--stack">
                       <caption class="sr-only">Statut de vos cotisations mois par mois</caption>
                       <thead>
                         <tr>
@@ -410,22 +410,39 @@
         for (const period of periods) {
           const row = createEl("tr");
 
-          row.append(createEl("th", { scope: "row", text: monthLabel(period.year, period.month) }));
-          row.append(createEl("td", { text: formatDate(period.due_date) }));
+          row.append(
+            createEl("th", {
+              scope: "row",
+              "data-label": "Période",
+              text: monthLabel(period.year, period.month),
+            })
+          );
+          row.append(createEl("td", { "data-label": "Échéance", text: formatDate(period.due_date) }));
 
-          const expected = createEl("td", { class: "table__num", text: formatMoney(period.expected, currency) });
-          const paid = createEl("td", { class: "table__num", text: formatMoney(period.paid_amount, currency) });
+          const expected = createEl("td", {
+            class: "table__num",
+            "data-label": "Attendu",
+            text: formatMoney(period.expected, currency),
+          });
+          const paid = createEl("td", {
+            class: "table__num",
+            "data-label": "Versé",
+            text: formatMoney(period.paid_amount, currency),
+          });
           const remaining = createEl("td", {
             class: "table__num",
+            "data-label": "Reste",
             text: toNumber(period.remaining) > 0 ? formatMoney(period.remaining, currency) : "—",
           });
 
-          const statusCell = createEl("td");
-          statusCell.append(badge(period.display_status));
+          const statusCell = createEl("td", { "data-label": "Statut" });
+          const statusGroup = createEl("span", { class: "cell-badges" }, [
+            badge(period.display_status),
+          ]);
           if (Number(period.pending_total) > 0 && period.display_status !== "paid") {
-            statusCell.append(document.createTextNode(" "));
-            statusCell.append(badge("pending"));
+            statusGroup.append(badge("pending"));
           }
+          statusCell.append(statusGroup);
 
           row.append(expected, paid, remaining, statusCell);
           tbody.append(row);

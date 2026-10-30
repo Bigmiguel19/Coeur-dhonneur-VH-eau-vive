@@ -94,6 +94,33 @@
   white-space: nowrap;
 }
 
+/* Contenu multi-ligne d'une cellule : deux lignes propres au lieu d'un <br> */
+.cell-value {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* Plusieurs badges côte à côte dans une même cellule */
+.cell-badges {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Groupe de boutons d'action dans une cellule */
+.cell-actions__row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
 .stack {
   display: flex;
   flex-direction: column;

@@ -111,7 +111,7 @@
                 </div>
 
                 <div class="table-wrap" id="table-wrap">
-                  <table class="table">
+                  <table class="table table--stack">
                     <caption class="sr-only">Liste de vos versements</caption>
                     <thead>
                       <tr>
@@ -190,40 +190,44 @@
         for (const payment of visible) {
           const row = createEl("tr");
 
-          const dateCell = createEl("td");
-          dateCell.append(createEl("span", { text: formatDate(payment.payment_date) }));
+          const dateCell = createEl("td", { "data-label": "Date" });
           dateCell.append(
-            createEl("br"),
-            createEl("span", { class: "muted", text: `envoyé ${formatRelative(payment.submitted_at)}` })
+            createEl("span", { class: "cell-value" }, [
+              createEl("span", { text: formatDate(payment.payment_date) }),
+              createEl("span", {
+                class: "muted",
+                text: `envoyé ${formatRelative(payment.submitted_at)}`,
+              }),
+            ])
           );
 
-          const referenceCell = createEl("td");
-          referenceCell.append(
-            createEl("span", { text: payment.transaction_reference || "—" })
-          );
+          const referenceCell = createEl("td", { "data-label": "Référence" });
+          const referenceLines = [
+            createEl("span", { text: payment.transaction_reference || "—" }),
+          ];
           if (payment.note) {
-            referenceCell.append(
-              createEl("br"),
-              createEl("span", { class: "muted", text: payment.note })
-            );
+            referenceLines.push(createEl("span", { class: "muted", text: payment.note }));
           }
+          referenceCell.append(createEl("span", { class: "cell-value" }, referenceLines));
 
-          const statusCell = createEl("td");
-          statusCell.append(badge(payment.status));
+          const statusCell = createEl("td", { "data-label": "Statut" });
+          const statusLines = [badge(payment.status)];
           if (payment.status === "rejected" && payment.rejection_reason) {
-            statusCell.append(
-              createEl("br"),
+            statusLines.push(
               createEl("span", { class: "muted", text: payment.rejection_reason })
             );
           }
           if (payment.status === "confirmed" && payment.validated_at) {
-            statusCell.append(
-              createEl("br"),
-              createEl("span", { class: "muted", text: `validé le ${formatDate(payment.validated_at)}` })
+            statusLines.push(
+              createEl("span", {
+                class: "muted",
+                text: `validé le ${formatDate(payment.validated_at)}`,
+              })
             );
           }
+          statusCell.append(createEl("span", { class: "cell-value" }, statusLines));
 
-          const proofCell = createEl("td");
+          const proofCell = createEl("td", { "data-label": "Justificatif" });
           if (payment.proof_path) {
             const button = createEl("button", {
               class: "btn btn--ghost btn--sm",
@@ -238,7 +242,11 @@
 
           row.append(
             dateCell,
-            createEl("td", { class: "table__num", text: formatMoney(payment.amount, currency) }),
+            createEl("td", {
+              class: "table__num",
+              "data-label": "Montant",
+              text: formatMoney(payment.amount, currency),
+            }),
             referenceCell,
             statusCell,
             proofCell
