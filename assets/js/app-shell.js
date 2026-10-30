@@ -21,6 +21,12 @@ const ICONS = {
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   users:
     '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  layers:
+    '<path d="m12 2 10 6-10 6L2 8l10-6Z"/><path d="m2 14 10 6 10-6"/>',
+  chart:
+    '<path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16V8"/><path d="M17 16v-3"/>',
+  sliders:
+    '<path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M2 14h4"/><path d="M10 8h4"/><path d="M18 16h4"/>',
   alert:
     '<path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
   shield: '<path d="M12 3 4 6v6c0 4.4 3.4 8.3 8 9 4.6-.7 8-4.6 8-9V6l-8-3Z"/>',
@@ -50,6 +56,9 @@ const MENUS = {
         { key: "dashboard", label: "Tableau de bord", href: "index.html", icon: "grid" },
         { key: "members", label: "Membres", href: "members.html", icon: "users" },
         { key: "arrears", label: "Retards", href: "arrears.html", icon: "alert" },
+        { key: "tiers", label: "Paliers", href: "tiers.html", icon: "layers" },
+        { key: "reports", label: "Rapports", href: "reports.html", icon: "chart" },
+        { key: "settings", label: "Paramètres", href: "settings.html", icon: "sliders" },
       ],
     },
     {

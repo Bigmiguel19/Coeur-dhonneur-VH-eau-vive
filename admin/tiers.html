@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Paliers de cotisation — Cœur d'Honneur, Centre Eau Vive Williamsville." />
+    <title>Paliers — Administration — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/animations.css" />
+    <link rel="stylesheet" href="../assets/css/responsive.css" />
+    <link rel="stylesheet" href="../assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'administration"></aside>
+
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h1>Paliers de cotisation</h1>
+              <p>Les tranches mensuelles proposées aux membres de la communauté.</p>
+            </div>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="page" hidden>
+            <div class="grid-stats" style="margin-bottom: var(--sp-6)">
+              <article class="stat stat--accent">
+                <p class="stat__label">Paliers actifs</p>
+                <p class="stat__value" id="kpi-active">—</p>
+                <p class="stat__meta">Proposés à l'inscription</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Membres rattachés</p>
+                <p class="stat__value" id="kpi-assigned">—</p>
+                <p class="stat__meta">Palier attribué</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Sans palier</p>
+                <p class="stat__value" id="kpi-untiered">—</p>
+                <p class="stat__meta">Montant par défaut appliqué</p>
+              </article>
+            </div>
+
+            <section class="card" aria-labelledby="titre-paliers">
+              <div class="card__head">
+                <div>
+                  <h2 class="card__title" id="titre-paliers">Registre des paliers</h2>
+                  <p class="card__subtitle">Du montant le plus faible au plus élevé</p>
+                </div>
+                <button type="button" class="btn btn--primary btn--sm" id="btn-add">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width: 16px; height: 16px">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Ajouter un palier
+                </button>
+              </div>
+
+              <div class="card__body">
+                <div class="table-wrap" id="table-wrap">
+                  <table class="table table--stack">
+                    <caption class="sr-only">Paliers de cotisation</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Palier</th>
+                        <th scope="col" class="table__num">Montant mensuel</th>
+                        <th scope="col" class="table__num">Membres</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tiers-body"></tbody>
+                  </table>
+                </div>
+
+                <div class="empty" id="tiers-empty" hidden>
+                  <p class="empty__title">Aucun palier</p>
+                  <p class="empty__text">Créez un premier palier pour fixer les montants attendus.</p>
+                </div>
+              </div>
+            </section>
+
+            <p class="muted" style="margin-top: var(--sp-4)">
+              Deux paliers actifs ne peuvent pas porter le même montant, et un libellé ne peut pas
+              être réutilisé. Un palier désactivé reste visible dans l'historique des membres qui
+              y sont rattachés : préférez la désactivation à toute suppression, d'ailleurs
+              interdite pour préserver la cohérence des comptes.
+            </p>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <dialog class="dialog" id="tier-dialog" aria-labelledby="tier-title">
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="tier-title">Ajouter un palier</h2>
+        <button type="button" class="btn btn--ghost btn--icon btn--sm" data-close aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="tier-form" novalidate>
+        <div class="dialog__body">
+          <div class="field">
+            <label class="field__label required" for="tier-label">Libellé</label>
+            <input
+              class="input"
+              type="text"
+              id="tier-label"
+              name="tier-label"
+              maxlength="40"
+              autocomplete="off"
+              placeholder="Ex. : Vase d'Argent"
+              required
+            />
+            <p class="field__error" role="alert"></p>
+          </div>
+
+          <div class="field">
+            <label class="field__label required" for="tier-amount">Montant mensuel</label>
+            <input
+              class="input"
+              type="number"
+              id="tier-amount"
+              name="tier-amount"
+              inputmode="numeric"
+              min="100"
+              step="100"
+              placeholder="2000"
+              required
+            />
+            <p class="field__hint">En FCFA. Deux paliers actifs ne peuvent pas avoir le même montant.</p>
+            <p class="field__error" role="alert"></p>
+          </div>
+
+          <p class="muted" style="margin-top: var(--sp-3)" id="tier-hint-members"></p>
+        </div>
+
+        <div class="dialog__foot">
+          <button type="button" class="btn btn--secondary" data-close>Annuler</button>
+          <button type="submit" class="btn btn--primary" id="tier-save">Enregistrer</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { $, formatMoney, formatDate, toNumber, createEl, withSubmitLock } from "../assets/js/utils.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
+      import { authErrorMessage } from "../assets/js/auth.js";
+      import { requireAdmin } from "../assets/js/guards.js";
+      import { toast, confirmDialog, setFieldError, bindFieldCleanup } from "../assets/js/ui.js";
+      import { mountShell, paintIdentity } from "../assets/js/app-shell.js";
+
+      let currency = "XOF";
+      let tiers = [];
+      let memberCounts = new Map(); // tier_id -> nombre de membres
+      let untieredCount = 0;
+      let editingId = null;
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      /* ---------- Chargement ---------- */
+      async function loadTiers() {
+        const [tiersRes, membersRes, settingsRes] = await Promise.all([
+          supabase
+            .from("contribution_tiers")
+            .select("id, label, monthly_amount, is_active, created_at, updated_at")
+            .order("monthly_amount"),
+          supabase.from("profiles").select("tier_id, role, is_active").limit(2000),
+          supabase.from("app_settings").select("currency").maybeSingle(),
+        ]);
+
+        const firstError = tiersRes.error || membersRes.error || settingsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return;
+        }
+
+        currency = settingsRes.data?.currency || "XOF";
+        tiers = tiersRes.data ?? [];
+
+        memberCounts = new Map();
+        untieredCount = 0;
+        for (const member of membersRes.data ?? []) {
+          if (member.role !== "member" || !member.is_active) continue;
+          if (member.tier_id) {
+            memberCounts.set(member.tier_id, (memberCounts.get(member.tier_id) ?? 0) + 1);
+          } else {
+            untieredCount += 1;
+          }
+        }
+
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+
+        paintStats();
+        render();
+      }
+
+      function paintStats() {
+        $("#kpi-active").textContent = String(tiers.filter((t) => t.is_active).length);
+        $("#kpi-assigned").textContent = String(
+          [...memberCounts.values()].reduce((sum, n) => sum + n, 0)
+        );
+        $("#kpi-untiered").textContent = String(untieredCount);
+      }
+
+      /* ---------- Rendu ---------- */
+      function render() {
+        const tbody = $("#tiers-body");
+        tbody.replaceChildren();
+
+        if (!tiers.length) {
+          $("#tiers-empty").hidden = false;
+          $("#table-wrap").hidden = true;
+          return;
+        }
+
+        $("#tiers-empty").hidden = true;
+        $("#table-wrap").hidden = false;
+
+        for (const tier of tiers) {
+          tbody.append(buildRow(tier));
+        }
+      }
+
+      function buildRow(tier) {
+        const row = createEl("tr");
+
+        const labelCell = createEl("td", { "data-label": "Palier" });
+        const labelLines = [createEl("span", { text: tier.label })];
+        labelLines.push(
+          createEl("span", { class: "muted", text: `créé le ${formatDate(tier.created_at)}` })
+        );
+        labelCell.append(createEl("span", { class: "cell-value" }, labelLines));
+
+        const editButton = createEl(
+          "button",
+          {
+            type: "button",
+            class: "btn btn--secondary btn--sm",
+            "aria-label": `Modifier le palier ${tier.label}`,
+          },
+          "Modifier"
+        );
+        editButton.addEventListener("click", () => openTierDialog(tier));
+
+        const toggleButton = createEl(
+          "button",
+          {
+            type: "button",
+            class: tier.is_active ? "btn btn--secondary btn--sm" : "btn btn--primary btn--sm",
+            "aria-label": `${tier.is_active ? "Désactiver" : "Réactiver"} le palier ${tier.label}`,
+          },
+          tier.is_active ? "Désactiver" : "Réactiver"
+        );
+        toggleButton.addEventListener("click", () => toggleTier(tier, toggleButton));
+
+        const actions = createEl("td", { class: "cell-actions", "data-label": "Actions" });
+        actions.append(createEl("div", { class: "cell-actions__row" }, [editButton, toggleButton]));
+
+        row.append(
+          labelCell,
+          createEl("td", {
+            class: "table__num",
+            "data-label": "Montant mensuel",
+            text: formatMoney(tier.monthly_amount, currency),
+          }),
+          createEl("td", {
+            class: "table__num",
+            "data-label": "Membres",
+            text: String(memberCounts.get(tier.id) ?? 0),
+          }),
+          createEl("td", { "data-label": "Statut" }, [
+            createEl("span", {
+              class: tier.is_active ? "badge badge--paid" : "badge badge--unpaid",
+              text: tier.is_active ? "Actif" : "Désactivé",
+            }),
+          ]),
+          actions
+        );
+
+        return row;
+      }
+
+      /* ---------- Boîte de dialogue ---------- */
+      function openTierDialog(tier = null) {
+        editingId = tier?.id ?? null;
+        const dialog = $("#tier-dialog");
+        const label = $("#tier-label");
+        const amount = $("#tier-amount");
+
+        $("#tier-title").textContent = tier ? "Modifier le palier" : "Ajouter un palier";
+        $("#tier-save").textContent = tier ? "Enregistrer les modifications" : "Créer le palier";
+        $("#tier-hint-members").textContent = tier
+          ? `${memberCounts.get(tier.id) ?? 0} membre(s) actif(s) rattaché(s) à ce palier.`
+          : "";
+
+        label.value = tier?.label ?? "";
+        amount.value = tier ? String(toNumber(tier.monthly_amount)) : "";
+
+        setFieldError(label, "");
+        setFieldError(amount, "");
+
+        dialog.showModal();
+        label.focus();
+      }
+
+      function initTierDialog() {
+        const dialog = $("#tier-dialog");
+        const form = $("#tier-form");
+        const label = $("#tier-label");
+        const amount = $("#tier-amount");
+        const saveButton = $("#tier-save");
+
+        dialog.querySelectorAll("[data-close]").forEach((button) =>
+          button.addEventListener("click", () => dialog.close())
+        );
+        dialog.addEventListener("click", (event) => {
+          if (event.target === dialog) dialog.close();
+        });
+
+        bindFieldCleanup(form);
+
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          let valid = true;
+          const labelText = label.value.trim();
+          const amountValue = toNumber(amount.value);
+
+          if (labelText.length < 2) {
+            setFieldError(label, "Indiquez un libellé d'au moins 2 caractères.");
+            valid = false;
+          }
+
+          if (!(amountValue > 0)) {
+            setFieldError(amount, "Indiquez un montant supérieur à zéro.");
+            valid = false;
+          }
+
+          if (!valid) {
+            form.querySelector('[aria-invalid="true"]')?.focus();
+            return;
+          }
+
+          await withSubmitLock(saveButton, async () => {
+            const payload = { label: labelText, monthly_amount: amountValue };
+
+            const { data, error } = editingId
+              ? await supabase
+                  .from("contribution_tiers")
+                  .update(payload)
+                  .eq("id", editingId)
+                  .select("id, label, monthly_amount, is_active")
+              : await supabase
+                  .from("contribution_tiers")
+                  .insert(payload)
+                  .select("id, label, monthly_amount, is_active");
+
+            if (error) {
+              toast(tierError(error), "error", { title: "Enregistrement impossible" });
+              return;
+            }
+
+            if (editingId) {
+              const saved = data?.[0];
+              const index = tiers.findIndex((t) => t.id === editingId);
+              if (saved && index !== -1) tiers[index] = { ...tiers[index], ...saved };
+              toast("Palier mis à jour.", "success");
+            } else {
+              toast("Palier créé.", "success");
+            }
+
+            dialog.close();
+            await loadTiers();
+          });
+        });
+      }
+
+      async function toggleTier(tier, button) {
+        const deactivating = tier.is_active;
+        const attached = memberCounts.get(tier.id) ?? 0;
+
+        const ok = await confirmDialog({
+          title: deactivating ? "Désactiver ce palier ?" : "Réactiver ce palier ?",
+          message: deactivating
+            ? `« ${tier.label} » ne sera plus proposé lors de l'attribution. ${attached} membre(s) y restent rattachés et conservent ce montant.`
+            : `« ${tier.label} » sera de nouveau proposé pour un montant de ${formatMoney(tier.monthly_amount, currency)} par mois.`,
+          confirmLabel: deactivating ? "Désactiver le palier" : "Réactiver le palier",
+          tone: deactivating ? "danger" : "primary",
+        });
+        if (!ok) return;
+
+        await withSubmitLock(button, async () => {
+          const { data, error } = await supabase
+            .from("contribution_tiers")
+            .update({ is_active: !deactivating })
+            .eq("id", tier.id)
+            .select("id, is_active");
+
+          if (error) {
+            toast(tierError(error), "error");
+            return;
+          }
+          if (!data || data.length === 0) {
+            toast("Ce palier n'existe plus.", "warning");
+            await loadTiers();
+            return;
+          }
+
+          tier.is_active = !deactivating;
+          toast(deactivating ? "Palier désactivé." : "Palier réactivé.", "success");
+          render();
+        });
+      }
+
+      function tierError(error) {
+        const code = String(error?.code ?? "");
+        if (code === "23505")
+          return "Ce libellé existe déjà, ou un autre palier actif utilise déjà ce montant.";
+        if (code === "42501") return "Cette action est réservée à l'administration.";
+        return authErrorMessage(error);
+      }
+
+      /* ---------- Démarrage ---------- */
+      async function boot() {
+        mountShell({ role: "admin", active: "tiers", prefix: "../" });
+        initTierDialog();
+        $("#btn-add").addEventListener("click", () => openTierDialog());
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireAdmin();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        paintIdentity(profile);
+
+        try {
+          await loadTiers();
+        } catch (loadError) {
+          showFatal(authErrorMessage(loadError));
+        }
+      }
+
+      boot();
+    </script>
+  </body>
+</html>

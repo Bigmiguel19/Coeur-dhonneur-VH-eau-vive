@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Rapports de collecte — Cœur d'Honneur, Centre Eau Vive Williamsville." />
+    <title>Rapports — Administration — Cœur d'Honneur</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/animations.css" />
+    <link rel="stylesheet" href="../assets/css/responsive.css" />
+    <link rel="stylesheet" href="../assets/css/app.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'administration"></aside>
+
+      <div class="scrim" id="scrim" hidden></div>
+
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h1>Rapports de collecte</h1>
+              <p>Recouvrement période par période, calculé sur les versements validés.</p>
+            </div>
+
+            <div class="btn-row">
+              <div class="field" style="margin: 0">
+                <label class="field__label" for="year-filter" style="margin: 0">Année</label>
+                <select class="select" id="year-filter"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v4" /><path d="M12 16h.01" />
+            </svg>
+            <p id="boot-error-text"></p>
+          </div>
+
+          <div class="loading-block" id="loading">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+
+          <div id="page" hidden>
+            <div class="grid-stats" style="margin-bottom: var(--sp-6)">
+              <article class="stat stat--accent">
+                <p class="stat__label">Attendu (année)</p>
+                <p class="stat__value" id="kpi-expected">—</p>
+                <p class="stat__meta" id="kpi-expected-meta">—</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Encaissé (année)</p>
+                <p class="stat__value" id="kpi-collected">—</p>
+                <p class="stat__meta">Versements validés</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Reste à recouvrer</p>
+                <p class="stat__value" id="kpi-remaining">—</p>
+                <p class="stat__meta" id="kpi-remaining-meta">—</p>
+              </article>
+
+              <article class="stat">
+                <p class="stat__label">Taux de recouvrement</p>
+                <p class="stat__value" id="kpi-rate">—</p>
+                <p class="stat__meta" id="kpi-rate-meta">—</p>
+              </article>
+            </div>
+
+            <section class="card" aria-labelledby="titre-rapport">
+              <div class="card__head">
+                <div>
+                  <h2 class="card__title" id="titre-rapport">Recouvrement par période</h2>
+                  <p class="card__subtitle" id="rapport-subtitle">—</p>
+                </div>
+                <button type="button" class="btn btn--secondary btn--sm" id="btn-export">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 16px; height: 16px">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" /><path d="M12 15V3" />
+                  </svg>
+                  Exporter en CSV
+                </button>
+              </div>
+
+              <div class="card__body">
+                <div class="table-wrap" id="table-wrap">
+                  <table class="table table--stack">
+                    <caption class="sr-only">Totaux de recouvrement par période de cotisation</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Période</th>
+                        <th scope="col">Échéance</th>
+                        <th scope="col" class="table__num">Membres</th>
+                        <th scope="col" class="table__num">Attendu</th>
+                        <th scope="col" class="table__num">Encaissé</th>
+                        <th scope="col" class="table__num">Reste</th>
+                        <th scope="col">Taux</th>
+                      </tr>
+                    </thead>
+                    <tbody id="periods-body"></tbody>
+                  </table>
+                </div>
+
+                <div class="empty" id="periods-empty" hidden>
+                  <p class="empty__title">Aucune période</p>
+                  <p class="empty__text">
+                    Les périodes de cotisation seront créées par l'administration
+                    (écran Paramètres ou SQL) et apparaîtront ici.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <p class="muted" style="margin-top: var(--sp-4)">
+              Les montants attendus prennent en compte le palier de chaque membre à la période
+              considérée, ainsi que d'éventuelles dérogations. Les versements déclarés mais non
+              encore validés ne comptent pas comme encaissés.
+            </p>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { $, formatMoney, formatDate, monthLabel, toNumber, createEl } from "../assets/js/utils.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
+      import { authErrorMessage } from "../assets/js/auth.js";
+      import { requireAdmin } from "../assets/js/guards.js";
+      import { toast } from "../assets/js/ui.js";
+      import { mountShell, paintIdentity } from "../assets/js/app-shell.js";
+
+      let currency = "XOF";
+      let periods = []; // toutes les périodes (v_period_totals)
+      let selectedYear = null;
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      /* ---------- Chargement ---------- */
+      async function loadReport() {
+        const [totalsRes, settingsRes] = await Promise.all([
+          supabase
+            .from("v_period_totals")
+            .select(
+              "period_id, label, year, month, due_date, members_concerned, " +
+                "expected_total, confirmed_total, remaining_total"
+            )
+            .order("year", { ascending: false })
+            .order("month", { ascending: false })
+            .limit(120),
+          supabase.from("app_settings").select("currency, active_year").maybeSingle(),
+        ]);
+
+        const firstError = totalsRes.error || settingsRes.error;
+        if (firstError) {
+          showFatal(authErrorMessage(firstError));
+          return;
+        }
+
+        currency = settingsRes.data?.currency || "XOF";
+        periods = totalsRes.data ?? [];
+
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+
+        const years = [...new Set(periods.map((p) => Number(p.year)))].sort((a, b) => b - a);
+        const activeYear = Number(settingsRes.data?.active_year);
+        selectedYear = years.includes(activeYear) ? activeYear : (years[0] ?? null);
+
+        initYearFilter(years);
+        paint();
+      }
+
+      function initYearFilter(years) {
+        const select = $("#year-filter");
+        select.replaceChildren();
+
+        if (!years.length) {
+          select.append(createEl("option", { value: "", text: "—" }));
+          select.disabled = true;
+          return;
+        }
+
+        select.disabled = false;
+        for (const year of years) {
+          select.append(
+            createEl("option", { value: String(year), text: String(year), selected: year === selectedYear })
+          );
+        }
+
+        select.addEventListener("change", () => {
+          selectedYear = Number(select.value) || null;
+          paint();
+        });
+      }
+
+      /* ---------- Rendu ---------- */
+      function paint() {
+        const visible = selectedYear
+          ? periods.filter((p) => Number(p.year) === selectedYear)
+          : [];
+
+        const expected = visible.reduce((s, p) => s + toNumber(p.expected_total), 0);
+        const collected = visible.reduce((s, p) => s + toNumber(p.confirmed_total), 0);
+        const remaining = visible.reduce((s, p) => s + toNumber(p.remaining_total), 0);
+        const rate = expected > 0 ? Math.round((collected / expected) * 100) : 0;
+
+        $("#kpi-expected").textContent = formatMoney(expected, currency);
+        $("#kpi-expected-meta").textContent = selectedYear
+          ? `${visible.length} période${visible.length > 1 ? "s" : ""} en ${selectedYear}`
+          : "Aucune période";
+        $("#kpi-collected").textContent = formatMoney(collected, currency);
+        $("#kpi-remaining").textContent = formatMoney(remaining, currency);
+        $("#kpi-remaining-meta").textContent = expected > 0
+          ? `${100 - rate} % de l'attendu`
+          : "Aucun écart";
+        $("#kpi-rate").textContent = expected > 0 ? `${rate} %` : "—";
+        $("#kpi-rate-meta").textContent = "Versements validés / attendu";
+
+        $("#rapport-subtitle").textContent = selectedYear
+          ? `Année ${selectedYear}, du mois le plus récent au plus ancien`
+          : "Aucune période enregistrée";
+
+        const tbody = $("#periods-body");
+        tbody.replaceChildren();
+
+        if (!visible.length) {
+          $("#periods-empty").hidden = false;
+          $("#table-wrap").hidden = true;
+          return;
+        }
+
+        $("#periods-empty").hidden = true;
+        $("#table-wrap").hidden = false;
+
+        for (const period of visible) {
+          tbody.append(buildRow(period));
+        }
+      }
+
+      function buildRow(period) {
+        const row = createEl("tr");
+        const expected = toNumber(period.expected_total);
+        const collected = toNumber(period.confirmed_total);
+        const rate = expected > 0 ? Math.round((collected / expected) * 100) : 0;
+
+        const periodCell = createEl("td", { "data-label": "Période" });
+        periodCell.append(
+          createEl("span", {
+            class: "cell-value",
+          }, [
+            createEl("span", { text: monthLabel(period.year, period.month) }),
+            createEl("span", { class: "muted", text: period.label || "" }),
+          ])
+        );
+
+        const rateCell = createEl("td", { "data-label": "Taux" });
+        const rateLines = [createEl("span", { class: "badge badge--paid", text: `${rate} %` })];
+        if (rate < 50) {
+          rateLines[0] = createEl("span", { class: "badge badge--late", text: `${rate} %` });
+        } else if (rate < 100) {
+          rateLines[0] = createEl("span", { class: "badge badge--partial", text: `${rate} %` });
+        }
+        rateCell.append(createEl("span", { class: "cell-badges" }, rateLines));
+
+        row.append(
+          periodCell,
+          createEl("td", { "data-label": "Échéance", text: formatDate(period.due_date) }),
+          createEl("td", {
+            class: "table__num",
+            "data-label": "Membres",
+            text: String(toNumber(period.members_concerned)),
+          }),
+          createEl("td", {
+            class: "table__num",
+            "data-label": "Attendu",
+            text: formatMoney(expected, currency),
+          }),
+          createEl("td", {
+            class: "table__num",
+            "data-label": "Encaissé",
+            text: formatMoney(collected, currency),
+          }),
+          createEl("td", {
+            class: "table__num",
+            "data-label": "Reste",
+            text: toNumber(period.remaining_total) > 0
+              ? formatMoney(period.remaining_total, currency)
+              : "—",
+          }),
+          rateCell
+        );
+
+        return row;
+      }
+
+      /* ---------- Export CSV ---------- */
+      function exportCsv() {
+        const visible = selectedYear
+          ? periods.filter((p) => Number(p.year) === selectedYear)
+          : [];
+
+        if (!visible.length) {
+          toast("Aucune donnée à exporter pour cette année.", "warning");
+          return;
+        }
+
+        const header = ["Periode", "Echeance", "Membres", "Attendu", "Encaisse", "Reste", "Taux (%)"];
+        const lines = visible.map((p) => {
+          const expected = toNumber(p.expected_total);
+          const collected = toNumber(p.confirmed_total);
+          const rate = expected > 0 ? Math.round((collected / expected) * 100) : 0;
+          return [
+            monthLabel(p.year, p.month),
+            formatDate(p.due_date),
+            String(toNumber(p.members_concerned)),
+            String(expected),
+            String(collected),
+            String(toNumber(p.remaining_total)),
+            String(rate),
+          ].join(";");
+        });
+
+        // BOM UTF-8 : Excel reconnait les accents correctement.
+        const csv = `\uFEFF${[header.join(";"), ...lines].join("\r\n")}\r\n`;
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = createEl("a", {
+          href: url,
+          download: `rapport-cotisations-${selectedYear}.csv`,
+        });
+        link.click();
+        URL.revokeObjectURL(url);
+
+        toast(`Rapport ${selectedYear} exporté (${visible.length} périodes).`, "success");
+      }
+
+      /* ---------- Démarrage ---------- */
+      async function boot() {
+        mountShell({ role: "admin", active: "reports", prefix: "../" });
+        $("#btn-export").addEventListener("click", exportCsv);
+
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+
+        const { session, profile, error, redirected } = await requireAdmin();
+        if (redirected) return;
+
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+
+        paintIdentity(profile);
+
+        try {
+          await loadReport();
+        } catch (loadError) {
+          showFatal(authErrorMessage(loadError));
+        }
+      }
+
+      boot();
+    </script>
+  </body>
+</html>
