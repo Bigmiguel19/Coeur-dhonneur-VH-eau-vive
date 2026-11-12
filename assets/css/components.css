@@ -1019,3 +1019,65 @@
   font-size: var(--fs-2xs);
   color: var(--fg-secondary);
 }
+
+/* Scripture cards share the existing warm palette without interrupting tasks. */
+.scripture-card {
+  min-width: 0;
+  margin: 0;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--gold);
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, var(--bg-gold-soft), var(--bg-surface));
+  color: var(--fg-primary);
+}
+
+.scripture-card--page {
+  margin-block: var(--sp-6);
+}
+
+.public-frame > .scripture-card--page {
+  margin-inline: var(--sp-4);
+}
+
+.scripture-card__label {
+  margin-bottom: var(--sp-3);
+  color: var(--accent-hover);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.scripture-card blockquote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.7;
+  overflow-wrap: break-word;
+}
+
+.scripture-card__reference {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--accent-hover);
+}
+
+.scripture-card details {
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.scripture-card summary {
+  cursor: pointer;
+  color: var(--accent-hover);
+  font-weight: 600;
+}
+
+.scripture-card details p {
+  margin-top: var(--sp-3);
+}

@@ -343,7 +343,42 @@ export function countUp(element, target, { duration = 900, format } = {}) {
 /* --------------------------------------------------------------------------
    8. Initialisation commune à toutes les pages
    -------------------------------------------------------------------------- */
+const SOLIDARITY_VERSES = [
+  { reference: "Actes 2:44-45", text: "Tous ceux qui croyaient étaient dans le même lieu, et ils avaient tout en commun. Ils vendaient leurs propriétés et leurs biens, et ils en partageaient le produit entre tous, selon les besoins de chacun." },
+  { reference: "Actes 6:3", text: "C'est pourquoi, frères, choisissez parmi vous sept hommes, de qui l'on rende un bon témoignage, qui soient pleins d'Esprit Saint et de sagesse, et que nous chargerons de cet emploi." },
+  { reference: "Galates 2:10", text: "Ils nous recommandèrent seulement de nous souvenir des pauvres, ce que j'ai bien eu soin de faire." },
+  { reference: "Jacques 1:27", text: "La religion pure et sans tache, devant Dieu notre Père, consiste à visiter les orphelins et les veuves dans leurs afflictions, et à se préserver des souillures du monde." },
+];
+
+/** A quiet, stable reminder outside forms; never a popup or rotating announcement. */
+function mountSolidarityVerse() {
+  if (document.getElementById("solidarity-verse") || document.getElementById("fondements")) return;
+  const content = document.querySelector("main.content");
+  const publicFrame = document.querySelector(".public-frame");
+  if (!content && !publicFrame) return;
+  const page = window.location.pathname.split("/").pop();
+  const index = window.location.pathname.includes("/admin/") ? 1
+    : page === "payment.html" || page === "history.html" ? 0
+    : page === "profile.html" || page === "register.html" ? 3 : 2;
+  const verse = SOLIDARITY_VERSES[index];
+  const card = createEl("aside", {
+    id: "solidarity-verse", class: "scripture-card scripture-card--page",
+    "aria-label": "Notre engagement, à la lumière de la Parole",
+  }, [
+    createEl("p", { class: "scripture-card__label", text: "Un même cœur, une même solidarité" }),
+    createEl("blockquote", {}, [createEl("p", { text: verse.text })]),
+    createEl("p", { class: "scripture-card__reference", text: verse.reference }),
+  ]);
+  if (content) content.append(card);
+  else {
+    const footer = publicFrame.querySelector(".site-footer");
+    if (footer) footer.before(card);
+    else publicFrame.append(card);
+  }
+}
+
 export function initPage() {
+  mountSolidarityVerse();
   initReveal();
   initMobileNav();
   initPasswordToggles();
