@@ -81,7 +81,7 @@
                   <div class="card__head">
                     <div>
                       <h2 class="card__title" id="titre-wave">1. Effectuez le versement</h2>
-                      <p class="card__subtitle">Via Wave, avec le lien officiel de l’église</p>
+                      <p class="card__subtitle">Depuis votre application Wave, par transfert au numéro du département</p>
                     </div>
                   </div>
                   <div class="card__body">
@@ -97,17 +97,15 @@
                       </p>
                     </div>
 
-                    <p class="muted" id="wave-instructions">
-                      Le lien de paiement officiel est publié par l’administration.
-                    </p>
-
-                    <a class="btn btn--primary btn--lg btn--block" id="wave-link" href="#" target="_blank" rel="noopener noreferrer" style="margin-top: var(--sp-4)" hidden>
-                      Ouvrir Wave et payer
-                    </a>
-
-                    <p class="muted" id="wave-missing" style="margin-top: var(--sp-4)" hidden>
-                      Le lien Wave n’est pas encore configuré. Contactez l’administration
-                      pour connaître le numéro à créditer.
+                    <div class="card card--pad" aria-label="Coordonnées de paiement Wave">
+                      <p class="stat__label">Numéro Wave</p>
+                      <p class="stat__value" style="user-select: all"><bdi>0798586794</bdi></p>
+                      <p style="margin-top: var(--sp-3)">Bénéficiaire : <strong>wave coeur d'honneur</strong></p>
+                    </div>
+                    <p class="muted" style="margin-top: var(--sp-4)">
+                      Ouvrez votre application Wave, effectuez le transfert à ce numéro et
+                      conservez votre reçu ou la référence de transaction. Aucun lien de paiement
+                      n’est nécessaire. Complétez ensuite la déclaration ci-dessous.
                     </p>
                   </div>
                 </section>
@@ -321,7 +319,7 @@
         const [settingsRes, summaryRes, pendingRes, periodsRes] = await Promise.all([
           supabase
             .from("app_settings")
-            .select("currency, min_payment_amount, default_monthly_amount, wave_payment_url, wave_instructions")
+            .select("currency, min_payment_amount, default_monthly_amount")
             .maybeSingle(),
           supabase.from("v_member_summary").select("*").eq("member_id", userId).maybeSingle(),
           supabase
@@ -376,19 +374,8 @@
         $("#currency-suffix").textContent = currency === "XOF" ? "FCFA" : currency;
 
         // Lien Wave
-        const url = settings.wave_payment_url;
-        if (url && /^https?:\/\//i.test(url)) {
-          $("#wave-link").href = url;
-          $("#wave-link").hidden = false;
-          $("#wave-missing").hidden = true;
-        } else {
-          $("#wave-link").hidden = true;
-          $("#wave-missing").hidden = false;
-        }
-
-        if (settings.wave_instructions) {
-          $("#wave-instructions").textContent = settings.wave_instructions;
-        }
+        // Manual Wave transfer details are displayed above the declaration form.
+        // Stored payment URLs remain unused until link-based payments are enabled again.
 
         // Déclaration déjà en attente
         if (pendingRes.data) {

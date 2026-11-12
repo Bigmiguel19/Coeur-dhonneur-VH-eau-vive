@@ -140,15 +140,15 @@
                   <p class="stat__value" id="next-period-amount" style="margin-top: var(--sp-3)">—</p>
                   <p class="stat__meta" id="next-period-due">—</p>
 
-                  <a class="btn btn--primary btn--block" id="wave-link" href="#" target="_blank" rel="noopener noreferrer" style="margin-top: var(--sp-5)" hidden>
-                    Payer avec Wave
-                  </a>
-                  <p class="muted" id="wave-hint" style="margin-top: var(--sp-3)">
-                    Le lien de paiement officiel est publié par l’administration.
-                  </p>
+                  <div style="margin-top: var(--sp-5)">
+                    <p class="stat__label">Paiement Wave</p>
+                    <p style="font-weight: 700; user-select: all"><bdi>0798586794</bdi></p>
+                    <p>wave coeur d'honneur</p>
+                    <p class="muted" style="margin-top: var(--sp-3)">Effectuez le transfert dans votre application Wave. Vérifiez le bénéficiaire puis conservez votre référence avant de déclarer le paiement.</p>
+                  </div>
 
                   <a class="btn btn--secondary btn--block" href="payment.html" style="margin-top: var(--sp-3)">
-                    Déclarer mon versement
+                    Déclarer le paiement
                   </a>
                 </section>
 
@@ -381,17 +381,7 @@
           $("#next-period-due").textContent = `À régler avant le ${formatDate(target.due_date)}`;
         }
 
-        const url = settings.wave_payment_url;
-        const link = $("#wave-link");
-        if (url && /^https?:\/\//i.test(url)) {
-          link.href = url;
-          link.hidden = false;
-          $("#wave-hint").textContent =
-            "Vous serez redirigé vers le lien de paiement officiel. Après le paiement, conservez la référence de la transaction : elle vous sera demandée lors de la déclaration.";
-        } else {
-          $("#wave-hint").textContent =
-            "Le lien de paiement Wave n’est pas encore publié par l’administration.";
-        }
+        // Manual transfer instructions remain visible without a configured Wave URL.
       }
 
       /* ---------- Démarrage ---------- */
