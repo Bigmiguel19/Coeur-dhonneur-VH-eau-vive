@@ -62,6 +62,45 @@
   height: 20px;
 }
 
+/* The supplied portrait PNG contains a sideways wordmark. Keep the source intact. */
+.brand .brand__mark {
+  position: relative;
+  width: 108px;
+  height: 72px;
+  flex: 0 0 108px;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.brand .brand__mark::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 108px;
+  background: url("../../logocoeurdhonneur.png") center / contain no-repeat;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.brand .brand__mark svg {
+  display: none;
+}
+
+/* The image already includes the name; retain the text for screen readers. */
+.brand .brand__word {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .brand__word {
   font-family: var(--font-display);
   font-size: 1.15rem;
