@@ -71,7 +71,7 @@ $$;
 create table if not exists public.profiles (
   id          uuid primary key references auth.users (id) on delete cascade,
   full_name   text not null check (length(btrim(full_name)) between 2 and 120),
-  email       text not null,
+  email       text,
   phone       text,
   role        public.user_role not null default 'member',
   tier_id     uuid,
@@ -82,6 +82,9 @@ create table if not exists public.profiles (
 
 comment on table public.profiles is
   'Profil applicatif de chaque utilisateur. Le rôle est la seule source de vérité des droits.';
+
+alter table public.profiles alter column email drop not null;
+update public.profiles set email = null where btrim(email) = '';
 
 create unique index if not exists profiles_email_key
   on public.profiles (lower(email));
@@ -637,22 +640,28 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  v_phone text := nullif(btrim(new.phone), '');
+  v_name text := nullif(btrim(new.raw_user_meta_data ->> 'full_name'), '');
 begin
-  insert into public.profiles (id, full_name, email, phone)
-  values (
-    new.id,
-    coalesce(
-      nullif(btrim(new.raw_user_meta_data ->> 'full_name'), ''),
-      split_part(coalesce(new.email, 'membre'), '@', 1)
-    ),
-    coalesce(new.email, ''),
-    nullif(btrim(new.raw_user_meta_data ->> 'phone'), '')
-  )
-  on conflict (id) do nothing;
+  if v_phone is not null then
+    v_phone := '+' || ltrim(v_phone, '+');
+  end if;
+  if v_name is null or length(v_name) not between 2 and 120 then
+    v_name := case when v_phone is not null then 'Membre ' || v_phone else 'Membre' end;
+  end if;
 
+  insert into public.profiles (id, full_name, email, phone, role, is_active, tier_id)
+  values (
+    new.id, v_name, nullif(btrim(new.email), ''),
+    coalesce(v_phone, nullif(btrim(new.raw_user_meta_data ->> 'phone'), '')),
+    'member', true, null
+  );
   return new;
 end;
 $$;
+
+revoke all on function public.handle_new_user() from public, anon, authenticated;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
@@ -925,7 +934,18 @@ declare
   -- pas d'un membre et n'est pas soumise à cette garde (les GRANT et les RLS
   -- restent la barrière d'anon et d'authenticated).
   v_uid uuid := auth.uid();
+  v_auth_phone text;
 begin
+  if new.phone is distinct from old.phone then
+    select nullif(btrim(u.phone), '') into v_auth_phone
+    from auth.users u where u.id = old.id;
+    if v_auth_phone is not null
+       and new.phone is distinct from ('+' || ltrim(v_auth_phone, '+')) then
+      raise exception 'Le téléphone de connexion se modifie via l''authentification'
+        using errcode = '42501';
+    end if;
+  end if;
+
   if v_uid is null or public.is_admin() then
     return new;
   end if;
@@ -954,10 +974,41 @@ begin
 end;
 $$;
 
+revoke all on function public.profiles_guard_update() from public, anon, authenticated;
+
 drop trigger if exists profiles_guard on public.profiles;
 create trigger profiles_guard
   before update on public.profiles
   for each row execute function public.profiles_guard_update();
+
+-- Synchronize only authoritative Auth phone changes, never privilege metadata.
+create or replace function public.sync_auth_phone()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.profiles
+  set phone = case when nullif(btrim(new.phone), '') is null then null
+                   else '+' || ltrim(btrim(new.phone), '+') end
+  where id = new.id;
+  return new;
+end;
+$$;
+
+revoke all on function public.sync_auth_phone() from public, anon, authenticated;
+drop trigger if exists on_auth_phone_updated on auth.users;
+create trigger on_auth_phone_updated
+  after update of phone on auth.users
+  for each row when (old.phone is distinct from new.phone)
+  execute function public.sync_auth_phone();
+
+update public.profiles p
+set phone = '+' || ltrim(btrim(u.phone), '+')
+from auth.users u
+where u.id = p.id and nullif(btrim(u.phone), '') is not null
+  and p.phone is distinct from ('+' || ltrim(btrim(u.phone), '+'));
 
 -- ---------------------------------------------------------------------------
 -- 20. Génération des périodes d'une année (utilisée par l'espace admin)

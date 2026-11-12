@@ -211,7 +211,7 @@
 
         for (const item of arrears) {
           const row = createEl("tr");
-          const name = item.full_name || item.email || "—";
+          const name = item.full_name || item.phone || item.email || "—";
 
           const memberCell = createEl("td", { "data-label": "Membre" });
           const memberLines = [createEl("span", { text: name })];

@@ -10,6 +10,10 @@
    ========================================================================== */
 
 import { supabase, CONFIG_ERROR, IS_CONFIGURED } from "./supabase-client.js";
+import { normalizePhone, isValidPassword } from "./utils.js";
+
+// Phone self-registration supersedes the original invitation-only policy above.
+// Supabase Auth stores passwords; profile triggers assign member privileges.
 
 /** Page d'accueil selon le rôle. */
 export const ROLE_HOME = Object.freeze({
@@ -43,7 +47,23 @@ export function appUrl(page, search = "") {
    1. Traduction des erreurs
    -------------------------------------------------------------------------- */
 const AUTH_MESSAGES = [
-  ["invalid login credentials", "E-mail ou mot de passe incorrect."],
+  ["invalid login credentials", "Identifiant ou mot de passe incorrect."],
+  ["invalid_credentials", "Identifiant ou mot de passe incorrect."],
+  ["phone_exists", "Inscription impossible avec ce numéro. Essayez de vous connecter ou contactez l’administration."],
+  ["user_already_exists", "Ce compte existe déjà. Connectez-vous ou contactez l’administration."],
+  ["already registered", "Ce compte existe déjà. Connectez-vous ou contactez l’administration."],
+  ["phone_not_confirmed", "La connexion par téléphone n’est pas encore disponible. Contactez l’administration."],
+  ["phone not confirmed", "La connexion par téléphone n’est pas encore disponible. Contactez l’administration."],
+  ["phone_provider_disabled", "L’inscription par téléphone n’est pas encore activée. Contactez l’administration."],
+  ["provider_disabled", "Ce mode de connexion n’est pas encore activé. Contactez l’administration."],
+  ["unsupported phone provider", "L’inscription par téléphone n’est pas encore activée. Contactez l’administration."],
+  ["signup_disabled", "Les inscriptions ne sont pas encore ouvertes. Contactez l’administration."],
+  ["signups not allowed", "Les inscriptions ne sont pas encore ouvertes. Contactez l’administration."],
+  ["sms_send_failed", "La configuration d’inscription doit être vérifiée par l’administration. Aucun SMS n’est prévu."],
+  ["phone number", "Ce numéro de téléphone n’est pas valide. Utilisez le format international."],
+  ["over_request_rate_limit", "Trop de tentatives. Patientez quelques minutes avant de réessayer."],
+  ["unexpected_failure", "Le service est indisponible. Réessayez ou contactez l’administration."],
+  ["database error saving new user", "Impossible de créer le profil. Contactez l’administration pour vérifier la configuration."],
   ["email not confirmed", "Votre adresse e-mail n’a pas encore été confirmée. Contactez l’administration."],
   ["invalid email", "Cette adresse e-mail n’est pas valide."],
   ["user not found", "Aucun compte ne correspond à cette adresse."],
@@ -103,14 +123,53 @@ export async function getSession() {
  * @param {string} email
  * @param {string} password
  */
-export async function signIn(email, password) {
+export async function signIn(identifier, password, mode = "email") {
   if (!supabase) return { session: null, error: new Error(CONFIG_ERROR) };
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: String(email).trim().toLowerCase(),
-    password,
-  });
-  if (error) return { session: null, user: null, error };
-  return { session: data.session, user: data.user, error: null };
+  try {
+    const phone = mode === "phone" ? normalizePhone(identifier) : null;
+    if (mode === "phone" && !phone) throw new Error("Indiquez un numéro de téléphone valide.");
+    const credentials = mode === "phone"
+      ? { phone, password }
+      : { email: String(identifier).trim().toLowerCase(), password };
+    const { data, error } = await supabase.auth.signInWithPassword(credentials);
+    if (error) throw error;
+    return await completeAuthentication(data);
+  } catch (error) {
+    return { session: null, user: null, profile: null, error };
+  }
+}
+
+/** Register a phone-only member. Privileges are never sent as user metadata. */
+export async function registerWithPhone(value, password) {
+  if (!supabase) return { session: null, error: new Error(CONFIG_ERROR) };
+  try {
+    const phone = normalizePhone(value);
+    if (!phone) throw new Error("Indiquez un numéro de téléphone valide.");
+    if (!isValidPassword(password)) throw new Error("Utilisez au moins 8 caractères, avec une lettre et un chiffre.");
+    const { data, error } = await supabase.auth.signUp({ phone, password });
+    if (error) throw error;
+    if (!data?.session) {
+      throw new Error("Aucune session ouverte. Essayez de vous connecter ; si cela échoue, contactez l’administration pour vérifier l’inscription sans SMS.");
+    }
+    return await completeAuthentication(data);
+  } catch (error) {
+    return { session: null, user: null, profile: null, error };
+  }
+}
+
+/** Do not announce success or navigate until the database profile is usable. */
+async function completeAuthentication(data) {
+  const session = data?.session;
+  const user = data?.user ?? session?.user;
+  if (!session || !user?.id) throw new Error("Aucune session ouverte. Veuillez réessayer de vous connecter.");
+  const { profile, error } = await fetchProfile(user.id);
+  if (error || !profile || !profile.is_active || !ROLE_HOME[profile.role]) {
+    await supabase.auth.signOut({ scope: "local" });
+    throw error || new Error(!profile
+      ? "Votre profil est introuvable. Contactez l’administration."
+      : "Votre compte n’est pas autorisé. Contactez l’administration.");
+  }
+  return { session, user, profile, error: null };
 }
 
 /**

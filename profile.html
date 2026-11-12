@@ -56,6 +56,9 @@
           </div>
 
           <div id="page" hidden>
+            <div class="banner banner--info" id="welcome-message" hidden role="status" style="margin-bottom: var(--sp-5)">
+              <p>Votre compte membre est créé. Vous pouvez maintenant ajouter votre nom pour que l’administration vous reconnaisse. Votre palier sera attribué par l’administration.</p>
+            </div>
             <div class="grid-main">
               <div class="stack stack--lg">
                 <!-- Coordonnées -->
@@ -95,14 +98,14 @@
                           placeholder="+225 …"
                           maxlength="30"
                         />
-                        <p class="field__hint">Format international recommandé.</p>
+                        <p class="field__hint" id="phone-hint">Format international recommandé.</p>
                         <p class="field__error" role="alert"></p>
                       </div>
 
                       <div class="field">
                         <label class="field__label" for="email">Adresse e-mail</label>
-                        <input class="input" type="email" id="email" name="email" readonly />
-                        <p class="field__hint">
+                        <input class="input" type="email" id="email" name="email" readonly placeholder="Aucune adresse e-mail" />
+                        <p class="field__hint" id="email-hint">
                           L’adresse e-mail sert d’identifiant de connexion : elle ne peut
                           pas être modifiée ici. Contactez l’administration en cas d’erreur.
                         </p>
@@ -233,7 +236,7 @@
     <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
 
     <script type="module">
-      import { $, formatMoney, formatDate, toNumber, withSubmitLock, isValidPhone } from "./assets/js/utils.js";
+      import { $, formatMoney, formatDate, toNumber, withSubmitLock, isValidPhone, normalizePhone } from "./assets/js/utils.js";
       import { toast, setFieldError, bindFieldCleanup } from "./assets/js/ui.js";
       import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "./assets/js/supabase-client.js";
       import { authErrorMessage, updatePassword } from "./assets/js/auth.js";
@@ -283,8 +286,15 @@
         }
 
         nameInput.value = profile.full_name ?? "";
-        phoneInput.value = profile.phone ?? "";
+        const loginPhone = currentUser?.phone ? normalizePhone("+" + currentUser.phone.replace(/^\+/, "")) : null;
+        phoneInput.value = loginPhone ?? profile.phone ?? "";
+        phoneInput.readOnly = !!currentUser?.phone;
+        phoneInput.setAttribute("aria-describedby", "phone-hint");
+        $("#phone-hint").textContent = currentUser?.phone
+          ? "Votre identifiant de connexion. Pour changer de numéro, contactez l’administration. Aucun SMS n’a vérifié ce numéro à l’inscription."
+          : "Numéro de contact uniquement : votre compte existant utilise toujours l’e-mail pour se connecter.";
         $("#email").value = profile.email ?? "";
+        if (!profile.email) $("#email-hint").textContent = "Compte créé avec un téléphone : aucune adresse e-mail n’est nécessaire.";
 
         $("#account-role").textContent = profile.role === "admin" ? "Administrateur" : "Membre";
         $("#account-since").textContent = formatDate(profile.created_at);
@@ -327,7 +337,7 @@
         }
 
         const phone = phoneInput.value.trim();
-        if (phone && !isValidPhone(phone)) {
+        if (!currentUser?.phone && phone && !isValidPhone(phone)) {
           setFieldError(phoneInput, "Ce numéro de téléphone semble invalide.");
           valid = false;
         }
@@ -343,7 +353,9 @@
           // Seules ces deux colonnes sont autorisées par le GRANT SQL.
           const { error } = await supabase
             .from("profiles")
-            .update({ full_name: fullName, phone: phone || null })
+            .update(currentUser.phone
+              ? { full_name: fullName }
+              : { full_name: fullName, phone: phone || null })
             .eq("id", currentUser.id);
 
           if (error) {
@@ -438,7 +450,11 @@
         bindFieldCleanup(formInfos);
         bindFieldCleanup(formPassword);
 
-        await loadProfile(session.user.id);
+        const loaded = await loadProfile(session.user.id);
+        if (loaded && new URLSearchParams(window.location.search).get("welcome") === "1") {
+          $("#welcome-message").hidden = false;
+          nameInput.focus();
+        }
       }
 
       boot();

@@ -24,6 +24,12 @@ revoke all on all tables in schema public from authenticated;
 
 grant usage on schema public to authenticated;
 
+-- Public registration uses Supabase Auth, not direct profile inserts.
+-- Trigger functions are not callable through the public API.
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+revoke all on function public.profiles_guard_update() from public, anon, authenticated;
+revoke all on function public.sync_auth_phone() from public, anon, authenticated;
+
 -- ---------------------------------------------------------------------------
 -- 1. profiles
 -- ---------------------------------------------------------------------------

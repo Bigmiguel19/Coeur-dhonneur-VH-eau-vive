@@ -89,11 +89,17 @@ export function requireAdmin() {
 export async function redirectIfAuthenticated() {
   if (!IS_CONFIGURED) return false;
 
-  const { session } = await getSession();
+  const { session, error } = await getSession();
+  if (error) throw error;
   if (!session) return false;
 
-  const { profile } = await fetchProfile(session.user.id);
-  window.location.replace(appUrl(homeForRole(profile?.role)));
+  const { profile, error: profileError } = await fetchProfile(session.user.id);
+  if (profileError) throw profileError;
+  if (!profile || !profile.is_active || !["member", "admin"].includes(profile.role)) {
+    await supabase.auth.signOut({ scope: "local" });
+    throw new Error("Votre profil est introuvable ou désactivé. Contactez l’administration.");
+  }
+  window.location.replace(appUrl(homeForRole(profile.role)));
   return true;
 }
 

@@ -194,7 +194,7 @@
           supabase.rpc("admin_dashboard_stats"),
           supabase
             .from("v_payments_queue")
-            .select("id, full_name, email, amount, payment_date, transaction_reference, submitted_at, status")
+            .select("id, full_name, email, phone, amount, payment_date, transaction_reference, submitted_at, status")
             .eq("status", "pending")
             .order("submitted_at", { ascending: true })
             .limit(15),
@@ -239,12 +239,12 @@
 
         for (const item of queue) {
           const row = createEl("tr");
-          const memberName = item.full_name || item.email || "—";
+          const memberName = item.full_name || item.phone || item.email || "—";
 
           const memberCell = createEl("td", { "data-label": "Membre" });
           const memberLines = [createEl("span", { text: memberName })];
-          if (item.email) {
-            memberLines.push(createEl("span", { class: "muted", text: item.email }));
+          if (item.phone || item.email) {
+            memberLines.push(createEl("span", { class: "muted", text: item.phone || item.email }));
           }
           memberCell.append(createEl("span", { class: "cell-value" }, memberLines));
 
@@ -326,7 +326,7 @@
       }
 
       async function confirmPayment(item, button) {
-        const label = item.full_name || item.email || "ce membre";
+        const label = item.full_name || item.phone || item.email || "ce membre";
 
         const ok = await confirmDialog({
           title: "Confirmer ce versement ?",
@@ -351,7 +351,7 @@
 
         pendingRejectId = item.id;
         $("#reject-target").textContent =
-          `${item.full_name || item.email || "Membre"} — ${formatMoney(item.amount, currency)}, ` +
+          `${item.full_name || item.phone || item.email || "Membre"} — ${formatMoney(item.amount, currency)}, ` +
           `payé le ${formatDate(item.payment_date)}.`;
 
         reason.value = "";

@@ -177,7 +177,7 @@ export function mountShell({ role = "member", active = "", prefix = "" } = {}) {
  * @param {{ full_name?: string, email?: string, role?: string }} profile
  */
 export function paintIdentity(profile = {}) {
-  const name = profile.full_name || profile.email || "Membre";
+  const name = profile.full_name || profile.phone || profile.email || "Membre";
   const first = String(name).split(" ")[0];
 
   setText("user-name", name);

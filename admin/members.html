@@ -48,7 +48,7 @@
                   class="input"
                   id="search"
                   type="search"
-                  placeholder="Nom ou adresse e-mail"
+                  placeholder="Nom, téléphone ou e-mail"
                   autocomplete="off"
                   style="min-width: 220px"
                 />
@@ -250,7 +250,7 @@
 
       function buildRow(member) {
         const row = createEl("tr");
-        const name = member.full_name || member.email || "—";
+        const name = member.full_name || member.phone || member.email || "—";
 
         const memberCell = createEl("td", { "data-label": "Membre" });
         const memberLines = [createEl("span", { text: name })];
@@ -278,7 +278,7 @@
         const cell = createEl("td", { "data-label": "Palier" });
         const select = createEl("select", {
           class: "select",
-          "aria-label": `Palier de cotisation de ${member.full_name || member.email}`,
+          "aria-label": `Palier de cotisation de ${member.full_name || member.phone || member.email}`,
           style: "min-width: 190px",
         });
 
@@ -351,7 +351,7 @@
           {
             type: "button",
             class: suspending ? "btn btn--secondary btn--sm" : "btn btn--primary btn--sm",
-            "aria-label": `${suspending ? "Suspendre" : "Réactiver"} ${member.full_name || member.email}`,
+            "aria-label": `${suspending ? "Suspendre" : "Réactiver"} ${member.full_name || member.phone || member.email}`,
           },
           suspending ? "Suspendre" : "Réactiver"
         );
@@ -387,7 +387,7 @@
       }
 
       async function toggleActive(member, button) {
-        const name = member.full_name || member.email;
+        const name = member.full_name || member.phone || member.email;
         const suspending = member.is_active;
 
         const ok = await confirmDialog({

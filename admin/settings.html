@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#241A17" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Paramètres des cotisations — Cœur d'Honneur." />
+    <title>Paramètres — Administration — Cœur d'Honneur</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/base.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/animations.css" />
+    <link rel="stylesheet" href="../assets/css/responsive.css" />
+    <link rel="stylesheet" href="../assets/css/app.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="app-sidebar" aria-label="Navigation de l'administration"></aside>
+      <div class="scrim" id="scrim" hidden></div>
+      <div class="app-main">
+        <header class="topbar" id="app-topbar"></header>
+        <main class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h1>Paramètres</h1>
+              <p>Les règles communes de cotisation et les informations de paiement.</p>
+            </div>
+          </div>
+          <div class="banner banner--danger" id="boot-error" hidden role="alert" style="margin-bottom: var(--sp-6)">
+            <p id="boot-error-text"></p>
+          </div>
+          <div class="loading-block" id="loading" role="status" aria-label="Chargement des paramètres">
+            <div class="skeleton skeleton--title"></div>
+            <div class="skeleton skeleton--text"></div>
+            <div class="skeleton skeleton--block"></div>
+          </div>
+          <div id="page" class="stack stack--lg" hidden>
+            <p class="muted" id="saved-status" role="status"></p>
+            <form id="settings-form" class="stack stack--lg" novalidate>
+              <fieldset id="settings-fields" class="stack stack--lg" style="border: 0; padding: 0; margin: 0; min-width: 0">
+                <legend class="sr-only">Configuration des cotisations</legend>
+                <section class="card" aria-labelledby="titre-cotisations">
+                  <div class="card__head">
+                    <div>
+                      <h2 class="card__title" id="titre-cotisations">Montants de cotisation</h2>
+                      <p class="card__subtitle" id="currency-label">Devise : XOF (FCFA)</p>
+                    </div>
+                  </div>
+                  <div class="card__body stack">
+                    <div class="grid-2">
+                      <div class="field">
+                        <label class="field__label required" for="default_monthly_amount">Montant mensuel par défaut</label>
+                        <input class="input" id="default_monthly_amount" name="default_monthly_amount" type="number" min="0.01" max="9999999999.99" step="0.01" inputmode="decimal" required aria-describedby="default-amount-hint" />
+                        <p class="field__hint" id="default-amount-hint">Montant utilisé lors de la création des nouvelles périodes. Les paliers et les périodes existantes ne sont pas modifiés.</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+                      <div class="field">
+                        <label class="field__label required" for="min_payment_amount">Versement minimum</label>
+                        <input class="input" id="min_payment_amount" name="min_payment_amount" type="number" min="0.01" max="9999999999.99" step="0.01" inputmode="decimal" required aria-describedby="minimum-hint" />
+                        <p class="field__hint" id="minimum-hint">S'applique aux nouvelles déclarations de versement.</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+                    </div>
+                    <p class="muted">La devise est conservée : modifier son libellé ne convertirait pas les sommes déjà enregistrées. Gérez les montants par membre dans <a href="tiers.html">Paliers</a>.</p>
+                  </div>
+                </section>
+                <section class="card" aria-labelledby="titre-calendrier">
+                  <div class="card__head">
+                    <div>
+                      <h2 class="card__title" id="titre-calendrier">Calendrier et retards</h2>
+                      <p class="card__subtitle">Année de référence et règles d'échéance</p>
+                    </div>
+                  </div>
+                  <div class="card__body stack">
+                    <div class="grid-2">
+                      <div class="field">
+                        <label class="field__label required" for="active_year">Année active</label>
+                        <input class="input" id="active_year" name="active_year" type="number" min="2000" max="2100" step="1" inputmode="numeric" required aria-describedby="year-hint" />
+                        <p class="field__hint" id="year-hint">Année sélectionnée par défaut dans les rapports. Ne crée pas de périodes et ne clôture pas les années précédentes.</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+                      <div class="field">
+                        <label class="field__label required" for="due_day">Jour d'échéance du mois</label>
+                        <input class="input" id="due_day" name="due_day" type="number" min="1" max="28" step="1" inputmode="numeric" required aria-describedby="due-hint" />
+                        <p class="field__hint" id="due-hint">Du 1 au 28, uniquement pour les nouvelles périodes.</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+                      <div class="field">
+                        <label class="field__label required" for="grace_days">Délai de grâce (jours)</label>
+                        <input class="input" id="grace_days" name="grace_days" type="number" min="0" max="60" step="1" inputmode="numeric" required aria-describedby="grace-hint" />
+                        <p class="field__hint" id="grace-hint">De 0 à 60 jours après l'échéance. Une modification recalcule immédiatement les retards, y compris sur les périodes existantes.</p>
+                        <p class="field__error" role="alert"></p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section class="card" aria-labelledby="titre-wave">
+                  <div class="card__head">
+                    <div>
+                      <h2 class="card__title" id="titre-wave">Paiement Wave</h2>
+                      <p class="card__subtitle">Informations affichées sur la page de déclaration des membres</p>
+                    </div>
+                  </div>
+                  <div class="card__body stack">
+                    <div class="field">
+                      <label class="field__label" for="wave_payment_url">Lien officiel de paiement</label>
+                      <input class="input" id="wave_payment_url" name="wave_payment_url" type="url" maxlength="2048" placeholder="https://pay.wave.com/…" autocomplete="off" spellcheck="false" aria-describedby="wave-url-hint" />
+                      <p class="field__hint" id="wave-url-hint">Utilisez un lien HTTPS officiel vérifié auprès de l'église. Laissez vide pour masquer le bouton de paiement.</p>
+                      <p class="field__error" role="alert"></p>
+                    </div>
+                    <div class="field">
+                      <label class="field__label" for="wave_instructions">Consignes de paiement</label>
+                      <textarea class="textarea" id="wave_instructions" name="wave_instructions" rows="4" maxlength="4000" placeholder="Indiquez le bénéficiaire et les consignes utiles aux membres."></textarea>
+                      <p class="field__hint">Texte simple, sans mise en forme HTML. Ne renseignez aucun mot de passe ni code secret.</p>
+                      <p class="field__error" role="alert"></p>
+                    </div>
+                  </div>
+                </section>
+              </fieldset>
+              <div class="banner banner--danger" id="save-error" role="alert" hidden>
+                <p id="save-error-text"></p>
+              </div>
+              <div class="card">
+                <div class="card__body stack">
+                  <p class="muted" id="change-status" role="status"></p>
+                  <div class="cell-actions__row">
+                    <button class="btn btn--secondary" id="btn-reset" type="button">Annuler les modifications</button>
+                    <button class="btn btn--primary" id="btn-save" type="submit">Enregistrer les paramètres</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <section class="card" aria-labelledby="titre-periodes">
+              <div class="card__head">
+                <div>
+                  <h2 class="card__title" id="titre-periodes">Préparer les périodes de cotisation</h2>
+                  <p class="card__subtitle">Une action distincte, à effectuer après l'enregistrement des paramètres</p>
+                </div>
+              </div>
+              <div class="card__body stack">
+                <p id="period-summary"></p>
+                <p class="muted">Crée et ouvre les mois manquants de janvier à décembre. Les périodes déjà présentes restent intactes. Les mois passés créés peuvent faire apparaître des retards.</p>
+                <div>
+                  <button class="btn btn--secondary" id="btn-periods" type="button">Créer les périodes manquantes</button>
+                </div>
+                <p class="muted" id="period-result" role="status"></p>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
+    <script type="module">
+      import { $, formatMoney } from "../assets/js/utils.js";
+      import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
+      import { authErrorMessage } from "../assets/js/auth.js";
+      import { requireAdmin } from "../assets/js/guards.js";
+      import { toast, confirmDialog, setFieldError, bindFieldCleanup } from "../assets/js/ui.js";
+      import { mountShell, paintIdentity } from "../assets/js/app-shell.js";
+
+      const defaults = {
+        default_monthly_amount: 2000,
+        min_payment_amount: 500,
+        active_year: new Date().getFullYear(),
+        due_day: 10,
+        grace_days: 5,
+        wave_payment_url: "",
+        wave_instructions: "",
+      };
+      const keys = Object.keys(defaults);
+      const columns = ["id", "updated_at", "currency", ...keys].join(",");
+      const form = $("#settings-form");
+      let saved = null;
+      let snapshot = "";
+      let adminId = null;
+      let busy = false;
+
+      function formSnapshot() {
+        return JSON.stringify(keys.map((key) => $("#" + key).value));
+      }
+
+      function isDirty() {
+        return formSnapshot() !== snapshot;
+      }
+
+      function refreshActions() {
+        const dirty = isDirty();
+        $("#btn-save").disabled = busy || (!!saved && !dirty);
+        $("#btn-reset").disabled = busy || !dirty;
+        $("#btn-periods").disabled = busy || dirty || !saved;
+        $("#change-status").textContent = dirty
+          ? "Modifications non enregistrées."
+          : saved ? "Les paramètres sont à jour." : "Vérifiez puis enregistrez cette configuration initiale.";
+      }
+
+      function populate() {
+        for (const key of keys) {
+          $("#" + key).value = saved?.[key] ?? defaults[key];
+          setFieldError($("#" + key), "");
+        }
+        snapshot = formSnapshot();
+        $("#save-error").hidden = true;
+        const currency = saved?.currency?.trim() || "XOF";
+        $("#currency-label").textContent = `Montants en ${currency === "XOF" ? "XOF (FCFA)" : currency}`;
+        $("#saved-status").textContent = saved
+          ? `Dernière mise à jour : ${new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" }).format(new Date(saved.updated_at))}.`
+          : "Aucune configuration enregistrée. Les valeurs proposées ne sont pas encore appliquées.";
+        $("#period-summary").textContent = saved
+          ? `Année ${saved.active_year} · échéance le ${saved.due_day} de chaque mois · montant par défaut ${formatMoney(saved.default_monthly_amount, currency)}.`
+          : "Enregistrez les paramètres avant de créer les périodes.";
+        $("#period-result").textContent = "";
+        refreshActions();
+      }
+
+      function showFatal(message) {
+        $("#loading").hidden = true;
+        $("#page").hidden = true;
+        $("#boot-error-text").textContent = message;
+        $("#boot-error").hidden = false;
+      }
+
+      function showSaveError(message) {
+        $("#save-error-text").textContent = message;
+        $("#save-error").hidden = false;
+      }
+
+      function settingsError(error) {
+        if (error?.code === "42501") return "Cette action est réservée à un administrateur actif. Vérifiez votre session et les politiques Supabase.";
+        if (error?.code === "23505") return "Une configuration a été créée par un autre administrateur. Rechargez la page avant de réessayer.";
+        return authErrorMessage(error);
+      }
+
+      function readPayload() {
+        const payload = {};
+        let valid = true;
+        for (const key of keys) {
+          const input = $("#" + key);
+          setFieldError(input, "");
+          let message = "";
+          if (input.type === "number") {
+            const value = input.valueAsNumber;
+            if (!Number.isFinite(value) || !input.validity.valid) {
+              message = `Indiquez un nombre entre ${input.min} et ${input.max}, ${input.step === "1" ? "sans décimale" : "avec au maximum deux décimales"}.`;
+            }
+            payload[key] = value;
+          } else {
+            const value = input.value.trim();
+            if (value.length > input.maxLength) message = `Limitez ce texte à ${input.maxLength} caractères.`;
+            if (key === "wave_payment_url" && value) {
+              try {
+                const url = new URL(value);
+                if (url.protocol !== "https:" || url.username || url.password || !input.validity.valid) throw new Error("Invalid URL");
+              } catch {
+                message = "Indiquez une URL HTTPS complète, sans identifiants dans le lien.";
+              }
+            }
+            payload[key] = value || null;
+          }
+          if (message) {
+            setFieldError(input, message);
+            valid = false;
+          }
+        }
+        if (!valid) {
+          form.querySelector('[aria-invalid="true"]')?.focus();
+          return null;
+        }
+        return { ...payload, updated_by: adminId };
+      }
+
+      async function runAction(button, task) {
+        if (busy) return;
+        busy = true;
+        $("#settings-fields").disabled = true;
+        button.classList.add("is-loading");
+        refreshActions();
+        try {
+          await task();
+        } catch (error) {
+          showSaveError(settingsError(error));
+          toast(settingsError(error), "error");
+        } finally {
+          busy = false;
+          $("#settings-fields").disabled = false;
+          button.classList.remove("is-loading");
+          refreshActions();
+        }
+      }
+
+      async function saveSettings(event) {
+        event.preventDefault();
+        if (busy || (saved && !isDirty())) return;
+        const payload = readPayload();
+        if (!payload) return;
+        await runAction($("#btn-save"), async () => {
+          $("#save-error").hidden = true;
+          if (saved && payload.grace_days !== Number(saved.grace_days)) {
+            const ok = await confirmDialog({
+              title: "Modifier le délai de grâce ?",
+              message: "Cette modification recalcule immédiatement les retards sur toutes les périodes, y compris les anciennes. Les autres paramètres saisis seront également enregistrés.",
+              confirmLabel: "Enregistrer les paramètres",
+            });
+            if (!ok) return;
+          }
+          // Match the last loaded version to avoid overwriting another administrator's changes.
+          const query = saved
+            ? supabase.from("app_settings").update(payload).eq("id", saved.id).eq("updated_at", saved.updated_at)
+            : supabase.from("app_settings").insert(payload);
+          const { data, error } = await query.select(columns).maybeSingle();
+          if (error) throw error;
+          if (!data) {
+            showSaveError("Aucune modification enregistrée. La configuration a changé ou vos droits ont été retirés. Copiez vos saisies puis rechargez la page.");
+            return;
+          }
+          saved = data;
+          populate();
+          toast("Paramètres enregistrés.", "success");
+        });
+      }
+
+      async function generatePeriods() {
+        if (busy || !saved || isDirty()) return;
+        await runAction($("#btn-periods"), async () => {
+          $("#period-result").textContent = "";
+          const ok = await confirmDialog({
+            title: `Créer les périodes de ${saved.active_year} ?`,
+            message: `${$("#period-summary").textContent} Tous les mois manquants seront ouverts, y compris les mois passés. Cela peut modifier les montants dus et les retards. Les périodes existantes ne seront pas modifiées.`,
+            confirmLabel: "Créer les périodes",
+          });
+          if (!ok) return;
+          const current = await supabase.from("app_settings").select("id, updated_at").eq("id", saved.id).maybeSingle();
+          if (current.error) throw current.error;
+          if (!current.data || current.data.updated_at !== saved.updated_at) {
+            $("#period-result").textContent = "Les paramètres ont changé. Rechargez la page avant de créer les périodes.";
+            return;
+          }
+          const { data, error } = await supabase.rpc("admin_generate_periods", { p_year: Number(saved.active_year) });
+          if (error) throw error;
+          if (!Number.isInteger(data) || data < 0 || data > 12) throw new Error("Réponse inattendue. Vérifiez les périodes avant de réessayer.");
+          $("#period-result").textContent = data === 0
+            ? `Les douze périodes de ${saved.active_year} existent déjà. Aucune modification.`
+            : `${data} période(s) créée(s) pour ${saved.active_year}. Les périodes existantes ont été conservées.`;
+          toast($("#period-result").textContent, "success");
+        });
+      }
+
+      async function boot() {
+        mountShell({ role: "admin", active: "settings", prefix: "../" });
+        if (!IS_CONFIGURED) {
+          showFatal(CONFIG_ERROR);
+          return;
+        }
+        const { profile, error, redirected } = await requireAdmin();
+        if (redirected) return;
+        if (error || !profile) {
+          showFatal(authErrorMessage(error));
+          return;
+        }
+        adminId = profile.id;
+        paintIdentity(profile);
+        const result = await supabase.from("app_settings").select(columns).maybeSingle();
+        if (result.error) throw result.error;
+        saved = result.data;
+        populate();
+        bindFieldCleanup(form);
+        form.addEventListener("input", refreshActions);
+        form.addEventListener("submit", saveSettings);
+        $("#btn-reset").addEventListener("click", () => runAction($("#btn-reset"), async () => {
+          const ok = await confirmDialog({
+            title: "Annuler les modifications ?",
+            message: "Les saisies non enregistrées seront perdues. Les derniers paramètres chargés seront rétablis.",
+            confirmLabel: "Annuler les modifications",
+            cancelLabel: "Continuer la saisie",
+          });
+          if (ok) populate();
+        }));
+        $("#btn-periods").addEventListener("click", generatePeriods);
+        window.addEventListener("beforeunload", (event) => {
+          if (!isDirty() && !busy) return;
+          event.preventDefault();
+          event.returnValue = "";
+        });
+        $("#loading").hidden = true;
+        $("#page").hidden = false;
+      }
+
+      boot().catch((error) => showFatal(settingsError(error)));
+    </script>
+  </body>
+</html>

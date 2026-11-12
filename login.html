@@ -114,17 +114,32 @@
                 <p class="eyebrow">Espace personnel</p>
                 <h1>Connexion</h1>
                 <p>
-                  Utilisez l’adresse e-mail associée à votre compte de membre
-                  ou d’administrateur.
+                  Connectez-vous avec votre téléphone et votre mot de passe.
+                  Les comptes existants peuvent toujours utiliser leur adresse e-mail.
                 </p>
               </div>
 
+              <div class="banner banner--danger" id="login-error" role="alert" hidden style="margin-bottom: var(--sp-4)"></div>
               <form class="form" id="formulaire" novalidate autocomplete="on">
                 <div class="field">
+                  <label class="field__label" for="login-mode">Mode de connexion</label>
+                  <select class="select" id="login-mode">
+                    <option value="phone">Téléphone</option>
+                    <option value="email">E-mail (comptes existants)</option>
+                  </select>
+                </div>
+                <div class="field" id="phone-field">
+                  <label class="field__label" for="phone">Numéro de téléphone</label>
+                  <input class="input" type="tel" id="phone" name="phone" inputmode="tel" autocomplete="username" placeholder="07 00 00 00 00" maxlength="40" required aria-describedby="phone-hint" />
+                  <p class="field__hint" id="phone-hint">10 chiffres en Côte d’Ivoire, ou un numéro international avec + et l’indicatif du pays.</p>
+                  <p class="field__error" role="alert"></p>
+                </div>
+                <div class="field" id="email-field" hidden>
                   <label class="field__label" for="email">Adresse e-mail</label>
                   <input
                     class="input"
                     type="email"
+                    disabled
                     id="email"
                     name="email"
                     inputmode="email"
@@ -181,9 +196,9 @@
                   <path d="M12 8h.01" /><path d="M11 12h1v4h1" />
                 </svg>
                 <p>
-                  Les comptes sont créés par l’administration. Il n’existe pas
-                  d’inscription publique, y compris pour les administrateurs.
-                  Pour obtenir un accès, contactez le secrétariat de la communauté.
+                  Pas encore de compte ? <a href="register.html">Créer mon compte membre</a>.
+                  Si votre ancien compte utilise un e-mail, choisissez le mode E-mail :
+                  son numéro de contact n’est pas automatiquement un identifiant de connexion.
                 </p>
               </div>
 
@@ -203,12 +218,12 @@
       import {
         $,
         isValidEmail,
+        normalizePhone,
         withSubmitLock,
         safeNextPath,
       } from "./assets/js/utils.js";
       import {
         signIn,
-        fetchProfile,
         homeForRole,
         authErrorMessage,
       } from "./assets/js/auth.js";
@@ -216,10 +231,25 @@
 
       const form = $("#formulaire");
       const emailInput = $("#email");
+      const phoneInput = $("#phone");
+      const modeInput = $("#login-mode");
+      const errorBanner = $("#login-error");
       const passwordInput = $("#password");
       const submitButton = form.querySelector('button[type="submit"]');
 
       bindFieldCleanup(form);
+      modeInput.addEventListener("change", () => {
+        const byPhone = modeInput.value === "phone";
+        $("#phone-field").hidden = !byPhone;
+        $("#email-field").hidden = byPhone;
+        phoneInput.disabled = !byPhone;
+        emailInput.disabled = byPhone;
+        setFieldError(phoneInput, "");
+        setFieldError(emailInput, "");
+        setFieldError(passwordInput, "");
+        errorBanner.hidden = true;
+        (byPhone ? phoneInput : emailInput).focus();
+      });
 
       // Message transmis par les pages protégées après expiration de session
       const params = new URLSearchParams(window.location.search);
@@ -240,12 +270,16 @@
       function validate() {
         let valid = true;
 
-        const email = emailInput.value.trim();
-        if (!email) {
-          setFieldError(emailInput, "Saisissez votre adresse e-mail.");
-          valid = false;
-        } else if (!isValidEmail(email)) {
-          setFieldError(emailInput, "Cette adresse e-mail n’est pas valide.");
+        setFieldError(phoneInput, "");
+        setFieldError(emailInput, "");
+        setFieldError(passwordInput, "");
+        if (modeInput.value === "phone") {
+          if (!normalizePhone(phoneInput.value)) {
+            setFieldError(phoneInput, "Indiquez un numéro valide, avec l’indicatif pour les numéros étrangers.");
+            valid = false;
+          }
+        } else if (!isValidEmail(emailInput.value)) {
+          setFieldError(emailInput, "Saisissez une adresse e-mail valide.");
           valid = false;
         }
 
@@ -272,13 +306,25 @@
         const next = safeNextPath(params.get("next"), "");
 
         await withSubmitLock(submitButton, async () => {
-          const { session, error } = await signIn(
-            emailInput.value,
-            passwordInput.value
-          );
+          errorBanner.hidden = true;
+          const mode = modeInput.value;
+          modeInput.disabled = true;
+          let result;
+          try {
+            result = await signIn(
+              mode === "phone" ? phoneInput.value : emailInput.value,
+              passwordInput.value,
+              mode
+            );
+          } finally {
+            modeInput.disabled = false;
+          }
+          const { session, profile, error } = result;
 
           if (error) {
             const message = authErrorMessage(error);
+            errorBanner.textContent = message;
+            errorBanner.hidden = false;
             if (/incorrect|mot de passe/i.test(message)) {
               setFieldError(passwordInput, message);
             }
@@ -289,7 +335,11 @@
             return;
           }
 
-          const { profile } = await fetchProfile(session.user.id);
+          if (!session || !profile) {
+            errorBanner.textContent = "Connexion incomplète. Veuillez réessayer.";
+            errorBanner.hidden = false;
+            return;
+          }
           toast(
             profile?.full_name
               ? `Bienvenue, ${profile.full_name}.`
@@ -304,9 +354,12 @@
       });
 
       // Un visiteur déjà connecté n'a pas besoin du formulaire.
-      redirectIfAuthenticated();
+      redirectIfAuthenticated().catch((error) => {
+        errorBanner.textContent = authErrorMessage(error);
+        errorBanner.hidden = false;
+      });
 
-      emailInput.focus({ preventScroll: true });
+      phoneInput.focus({ preventScroll: true });
     </script>
   </body>
 </html>

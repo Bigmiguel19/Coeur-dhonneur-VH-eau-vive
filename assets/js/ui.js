@@ -276,13 +276,24 @@ export function setFieldError(input, message = "") {
   const field = input.closest(".field");
   if (!field) return;
   const slot = field.querySelector(".field__error");
+  const errorId = input.id ? `${input.id}-error` : null;
+  const descriptions = (input.getAttribute("aria-describedby") ?? "")
+    .split(/\s+/)
+    .filter((id) => id && id !== errorId);
+
+  // Keep existing help text linked while adding or removing the error message.
+  if (message && slot && errorId) descriptions.push(errorId);
+  if (descriptions.length) {
+    input.setAttribute("aria-describedby", descriptions.join(" "));
+  } else {
+    input.removeAttribute("aria-describedby");
+  }
 
   if (message) {
     field.classList.add("has-error");
     input.setAttribute("aria-invalid", "true");
-    if (input.id) input.setAttribute("aria-describedby", `${input.id}-error`);
     if (slot) {
-      slot.id = `${input.id}-error`;
+      if (errorId) slot.id = errorId;
       slot.innerHTML =
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>';
       slot.append(document.createTextNode(message));

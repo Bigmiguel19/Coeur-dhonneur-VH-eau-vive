@@ -164,6 +164,23 @@ export function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(String(value ?? "").trim());
 }
 
+/** Normalize login phones without silently discarding invalid characters. */
+export function normalizePhone(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw || !/^[+\d\s().-]+$/.test(raw)) return null;
+  let phone = raw.replace(/[\s().-]/g, "");
+  if (phone.startsWith("00")) phone = "+" + phone.slice(2);
+  else if (/^\d{10}$/.test(phone)) phone = "+225" + phone;
+  if (!/^\+[1-9]\d{7,14}$/.test(phone)) return null;
+  if (phone.startsWith("+225") && !/^\+225\d{10}$/.test(phone)) return null;
+  return phone;
+}
+
+/** Matches the signup and password-change policy; passwords are never trimmed. */
+export function isValidPassword(value) {
+  return typeof value === "string" && value.length >= 8 && /[A-Za-z]/.test(value) && /\d/.test(value);
+}
+
 /**
  * Valide un numéro de téléphone ivoirien ou international.
  * Accepte : 07 00 00 00 00, +2250700000000, 0700000000.
