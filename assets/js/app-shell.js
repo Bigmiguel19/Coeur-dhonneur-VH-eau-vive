@@ -53,25 +53,26 @@ const MENUS = {
     {
       title: "Administration",
       items: [
-        { key: "dashboard", label: "Tableau de bord", href: "index.html", icon: "grid" },
-        { key: "members", label: "Membres", href: "members.html", icon: "users" },
-        { key: "arrears", label: "Retards", href: "arrears.html", icon: "alert" },
-        { key: "tiers", label: "Paliers", href: "tiers.html", icon: "layers" },
-        { key: "reports", label: "Rapports", href: "reports.html", icon: "chart" },
-        { key: "settings", label: "Paramètres", href: "settings.html", icon: "sliders" },
+        { key: "dashboard", label: "Tableau de bord", href: "admin/index.html", icon: "grid" },
+        { key: "members", label: "Membres", href: "admin/members.html", icon: "users" },
+        { key: "arrears", label: "Retards", href: "admin/arrears.html", icon: "alert" },
+        { key: "tiers", label: "Paliers", href: "admin/tiers.html", icon: "layers" },
+        { key: "reports", label: "Rapports", href: "admin/reports.html", icon: "chart" },
+        { key: "settings", label: "Paramètres", href: "admin/settings.html", icon: "sliders" },
       ],
     },
     {
       title: "Mon compte",
-      items: [{ key: "member-space", label: "Mon espace membre", href: "../dashboard.html", icon: "user" }],
+      items: [{ key: "member-space", label: "Mon espace membre", href: "dashboard.html", icon: "user" }],
     },
   ],
 };
 
-function link(item, active) {
+function link(item, active, prefix) {
   const isActive = item.key === active;
+  const href = `${prefix}${item.href}`;
   return `
-    <a class="nav-link${isActive ? " is-active" : ""}" href="${item.href}"
+    <a class="nav-link${isActive ? " is-active" : ""}" href="${href}"
        ${isActive ? 'aria-current="page"' : ""}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[item.icon] ?? ""}</svg>
@@ -86,7 +87,7 @@ function sidebarHtml(role, active, prefix) {
     .map(
       (group) => `
       <p class="sidebar__group">${group.title}</p>
-      ${group.items.map((item) => link(item, active)).join("")}`
+      ${group.items.map((item) => link(item, active, prefix)).join("")}`
     )
     .join("");
 
@@ -96,7 +97,7 @@ function sidebarHtml(role, active, prefix) {
     role === "member"
       ? `<div id="shell-admin-slot" hidden>
           <p class="sidebar__group">Administration</p>
-          <a class="nav-link" href="admin/index.html">
+          <a class="nav-link" href="${prefix}admin/index.html">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS.shield}</svg>
             Administration
