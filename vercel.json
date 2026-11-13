@@ -1,0 +1,5 @@
+{
+  "buildCommand": "node scripts/generate-config.mjs",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
