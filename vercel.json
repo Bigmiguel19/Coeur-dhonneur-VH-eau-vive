@@ -1,6 +1,5 @@
 {
   "buildCommand": "node scripts/generate-config.mjs",
   "outputDirectory": ".",
-  "cleanUrls": true,
   "trailingSlash": false
 }
