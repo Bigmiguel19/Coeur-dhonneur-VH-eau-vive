@@ -142,10 +142,48 @@
       </div>
     </div>
 
+    <!-- Dialogue d'ajout manuel de versement -->
+    <dialog class="dialog" id="manual-payment-dialog" aria-labelledby="manual-payment-title">
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="manual-payment-title">Ajouter un versement</h2>
+        <button type="button" class="btn btn--ghost btn--icon btn--sm" data-close aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="manual-payment-form">
+        <div class="dialog__body stack stack--md">
+          <p class="muted" id="manual-payment-member-name"></p>
+
+          <div class="field">
+            <label class="field__label required" for="mp-amount">Montant (FCFA)</label>
+            <input class="input" type="number" id="mp-amount" name="amount" min="1" step="1" required placeholder="Ex: 25000" />
+          </div>
+
+          <div class="field">
+            <label class="field__label required" for="mp-date">Date du versement</label>
+            <input class="input" type="date" id="mp-date" name="payment_date" required />
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="mp-ref">Référence / Motif</label>
+            <input class="input" type="text" id="mp-ref" name="reference" placeholder="Ex: Rattrapage Janvier, Espèces..." />
+          </div>
+        </div>
+
+        <div class="dialog__foot">
+          <button type="button" class="btn btn--secondary" data-close>Annuler</button>
+          <button type="submit" class="btn btn--primary" id="mp-submit">Enregistrer et valider</button>
+        </div>
+      </form>
+    </dialog>
+
     <div id="toast-region" class="toast-stack" role="status" aria-live="polite"></div>
 
     <script type="module">
-      import { $, formatMoney, formatDate, createEl, withSubmitLock } from "../assets/js/utils.js";
+      import { $, formatMoney, formatDate, toNumber, createEl, withSubmitLock } from "../assets/js/utils.js";
       import { supabase, IS_CONFIGURED, CONFIG_ERROR } from "../assets/js/supabase-client.js";
       import { authErrorMessage } from "../assets/js/auth.js";
       import { requireAdmin } from "../assets/js/guards.js";
@@ -357,7 +395,19 @@
         );
 
         button.addEventListener("click", () => toggleActive(member, button));
-        cell.append(createEl("div", { class: "cell-actions__row" }, [button]));
+
+        const paymentBtn = createEl(
+          "button",
+          {
+            type: "button",
+            class: "btn btn--secondary btn--sm",
+            "aria-label": `Ajouter un versement pour ${member.full_name || member.phone || member.email}`,
+          },
+          "+ Versement"
+        );
+        paymentBtn.addEventListener("click", () => openManualPaymentDialog(member));
+
+        cell.append(createEl("div", { class: "cell-actions__row" }, [button, paymentBtn]));
         return cell;
       }
 
@@ -417,6 +467,84 @@
         return authErrorMessage(error);
       }
 
+      /* ---------- Saisie manuelle de versement ---------- */
+      let currentPaymentMember = null;
+      const paymentDialog = $("#manual-payment-dialog");
+      const paymentForm = $("#manual-payment-form");
+
+      function openManualPaymentDialog(member) {
+        currentPaymentMember = member;
+        const name = member.full_name || member.phone || member.email || "ce membre";
+        $("#manual-payment-member-name").textContent = `Versement enregistré pour : ${name}`;
+        $("#mp-amount").value = "";
+        $("#mp-date").value = new Date().toISOString().split("T")[0];
+        $("#mp-ref").value = "Rattrapage antérieur";
+        paymentDialog.showModal();
+        $("#mp-amount").focus();
+      }
+
+      function initManualPaymentDialog() {
+        paymentDialog.querySelectorAll("[data-close]").forEach((btn) => {
+          btn.addEventListener("click", () => paymentDialog.close());
+        });
+        paymentDialog.addEventListener("click", (e) => {
+          if (e.target === paymentDialog) paymentDialog.close();
+        });
+
+        paymentForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          console.log("[DEBUG] Submit clicked, currentPaymentMember:", currentPaymentMember);
+
+          if (!currentPaymentMember) {
+            alert("Aucun membre sélectionné !");
+            return;
+          }
+
+          const rawAmount = $("#mp-amount").value;
+          const amount = toNumber(rawAmount);
+          const payment_date = $("#mp-date").value;
+          const reference = $("#mp-ref").value.trim() || "SAISIE-ADMIN";
+          const submitBtn = $("#mp-submit");
+
+          console.log("[DEBUG] Values:", { rawAmount, amount, payment_date, reference });
+
+          if (amount <= 0) {
+            alert("Veuillez saisir un montant valide (supérieur à 0). Saisie : " + rawAmount);
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Enregistrement...";
+
+          try {
+            const { data, error } = await supabase.rpc("admin_record_payment", {
+              p_member_id: currentPaymentMember.id,
+              p_amount: amount,
+              p_payment_date: payment_date,
+              p_reference: reference
+            });
+
+            console.log("[DEBUG] RPC response:", { data, error });
+
+            if (error) {
+              console.error("Erreur enregistrement versement:", error);
+              alert("Erreur retournée par Supabase : " + (error.message || JSON.stringify(error)));
+              return;
+            }
+
+            alert("Versement enregistré et validé avec succès !");
+            paymentDialog.close();
+            await loadMembers();
+          } catch (err) {
+            console.error("Erreur inattendue:", err);
+            alert("Erreur inattendue : " + (err.message || err));
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Enregistrer et valider";
+          }
+        });
+      }
+
       /* ---------- Démarrage ---------- */
       function initSearch() {
         const input = $("#search");
@@ -429,6 +557,7 @@
       async function boot() {
         mountShell({ role: "admin", active: "members", prefix: "../" });
         initSearch();
+        initManualPaymentDialog();
 
         if (!IS_CONFIGURED) {
           showFatal(CONFIG_ERROR);

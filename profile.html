@@ -286,15 +286,15 @@
         }
 
         nameInput.value = profile.full_name ?? "";
-        const loginPhone = currentUser?.phone ? normalizePhone("+" + currentUser.phone.replace(/^\+/, "")) : null;
-        phoneInput.value = loginPhone ?? profile.phone ?? "";
-        phoneInput.readOnly = !!currentUser?.phone;
+        phoneInput.value = profile.phone ?? "";
+        phoneInput.readOnly = false;
         phoneInput.setAttribute("aria-describedby", "phone-hint");
-        $("#phone-hint").textContent = currentUser?.phone
-          ? "Votre identifiant de connexion. Pour changer de numéro, contactez l’administration. Aucun SMS n’a vérifié ce numéro à l’inscription."
-          : "Numéro de contact uniquement : votre compte existant utilise toujours l’e-mail pour se connecter.";
-        $("#email").value = profile.email ?? "";
-        if (!profile.email) $("#email-hint").textContent = "Compte créé avec un téléphone : aucune adresse e-mail n’est nécessaire.";
+        $("#phone-hint").textContent = "Votre numéro de téléphone servant d'identifiant de connexion et de contact.";
+        const isVirtualEmail = profile.email && profile.email.endsWith("@phone.coeur-dhonneur.ci");
+        $("#email").value = isVirtualEmail ? "" : (profile.email ?? "");
+        $("#email-hint").textContent = isVirtualEmail
+          ? "Compte créé avec un téléphone : aucune adresse e-mail n’est nécessaire."
+          : "Adresse e-mail associée à votre compte.";
 
         $("#account-role").textContent = profile.role === "admin" ? "Administrateur" : "Membre";
         $("#account-since").textContent = formatDate(profile.created_at);

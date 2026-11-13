@@ -10,7 +10,7 @@
    ========================================================================== */
 
 import { supabase, CONFIG_ERROR, IS_CONFIGURED } from "./supabase-client.js";
-import { normalizePhone, isValidPassword } from "./utils.js";
+import { normalizePhone, phoneToAuthEmail, isValidPassword } from "./utils.js";
 
 // Phone self-registration supersedes the original invitation-only policy above.
 // Supabase Auth stores passwords; profile triggers assign member privileges.
@@ -119,18 +119,22 @@ export async function getSession() {
 }
 
 /**
- * Connexion par e-mail et mot de passe.
- * @param {string} email
+ * Connexion par téléphone ou par e-mail et mot de passe.
+ * @param {string} identifier
  * @param {string} password
+ * @param {"phone"|"email"} mode
  */
 export async function signIn(identifier, password, mode = "email") {
   if (!supabase) return { session: null, error: new Error(CONFIG_ERROR) };
   try {
-    const phone = mode === "phone" ? normalizePhone(identifier) : null;
-    if (mode === "phone" && !phone) throw new Error("Indiquez un numéro de téléphone valide.");
-    const credentials = mode === "phone"
-      ? { phone, password }
-      : { email: String(identifier).trim().toLowerCase(), password };
+    let credentials;
+    if (mode === "phone") {
+      const phone = normalizePhone(identifier);
+      if (!phone) throw new Error("Indiquez un numéro de téléphone valide.");
+      credentials = { email: phoneToAuthEmail(phone), password };
+    } else {
+      credentials = { email: String(identifier).trim().toLowerCase(), password };
+    }
     const { data, error } = await supabase.auth.signInWithPassword(credentials);
     if (error) throw error;
     return await completeAuthentication(data);
@@ -139,17 +143,32 @@ export async function signIn(identifier, password, mode = "email") {
   }
 }
 
-/** Register a phone-only member. Privileges are never sent as user metadata. */
+/** Register a phone-only member. */
 export async function registerWithPhone(value, password) {
   if (!supabase) return { session: null, error: new Error(CONFIG_ERROR) };
   try {
     const phone = normalizePhone(value);
     if (!phone) throw new Error("Indiquez un numéro de téléphone valide.");
     if (!isValidPassword(password)) throw new Error("Utilisez au moins 8 caractères, avec une lettre et un chiffre.");
-    const { data, error } = await supabase.auth.signUp({ phone, password });
+
+    const email = phoneToAuthEmail(phone);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          phone: phone,
+          full_name: `Membre ${phone}`
+        }
+      }
+    });
+
     if (error) throw error;
     if (!data?.session) {
-      throw new Error("Aucune session ouverte. Essayez de vous connecter ; si cela échoue, contactez l’administration pour vérifier l’inscription sans SMS.");
+      // Auto-connexion directe si la session immédiate n'a pas été fournie
+      const loginRes = await supabase.auth.signInWithPassword({ email, password });
+      if (loginRes.error) throw loginRes.error;
+      return await completeAuthentication(loginRes.data);
     }
     return await completeAuthentication(data);
   } catch (error) {

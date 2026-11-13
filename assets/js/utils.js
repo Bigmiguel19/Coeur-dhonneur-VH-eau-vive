@@ -176,6 +176,13 @@ export function normalizePhone(value) {
   return phone;
 }
 
+/** Convert a normalized E.164 phone number to a valid Auth login email. */
+export function phoneToAuthEmail(phone) {
+  if (!phone) return "";
+  const digits = String(phone).replace(/\+/g, "");
+  return `${digits}@phone.coeur-dhonneur.ci`;
+}
+
 /** Matches the signup and password-change policy; passwords are never trimmed. */
 export function isValidPassword(value) {
   return typeof value === "string" && value.length >= 8 && /[A-Za-z]/.test(value) && /\d/.test(value);
